@@ -29,7 +29,7 @@ lambda_deploy(){
         aws lambda create-function  --function-name ${funame} \
         --runtime nodejs14.x \
         --role arn:aws:iam::347867041416:role/internship_exec_role \
-        --handler ${fname}.handler  --zip-file fileb://${funame}.zip \
+        --handler ${funame}.handler  --zip-file fileb://${funame}.zip \
         --region ap-northeast-1
         rm ${funame}.zip
     done
