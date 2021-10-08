@@ -18,7 +18,7 @@ export default {
     return {
     };
   },
-  computed() {
+  computed: {
   // 計算した結果を変数として利用したいときはここに記述する
   },
   methods: {
