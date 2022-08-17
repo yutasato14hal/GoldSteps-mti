@@ -23,13 +23,8 @@ exports.handler = (event, context, callback) => {
     KeyConditionExpression: "",
     //プライマリーキー以外の属性でのフィルタ
     FilterExpression: "",
-    //属性名のプレースホルダの定義
-    ExpressionAttributeNames: {
-      
-    },
     //検索値のプレースホルダの定義
     ExpressionAttributeValues: {
-      
     },
   };
 
