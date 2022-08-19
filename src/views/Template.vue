@@ -1,6 +1,8 @@
 <template>
-  <div class="ui main container">
-    <!-- 基本的なコンテンツはここに記載する -->
+  <div>
+    <div class="ui main container">
+      <!-- 基本的なコンテンツはここに記載する -->
+    </div>
   </div>
 </template>
 <script>

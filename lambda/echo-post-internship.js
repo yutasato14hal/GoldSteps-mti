@@ -7,7 +7,7 @@ exports.handler = (event, context, callback) => {
     body: JSON.stringify({ message: "" }),
   };
 
-  //TODO: 変数rbodyにリクエストボディのオブジェクトを代入してください。
+  //TODO: 変数rbodyにリクエストボディのJavaScriptオブジェクトを代入してください。
 
   //TODO: responseオブジェクトのbodyプロパティに変数rbodyを代入
 
