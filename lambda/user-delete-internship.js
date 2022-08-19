@@ -20,9 +20,11 @@ exports.handler = (event, context, callback) => {
   //dynamo.delete()を用いてデータを削除
   dynamo.delete(param, function (err, data) {
     if (err) {
+      console.log(err);
       response.statusCode = 500;
       response.body = JSON.stringify({
         message: "予期せぬエラーが発生しました",
+        err: err
       });
       callback(null, response);
       return;
