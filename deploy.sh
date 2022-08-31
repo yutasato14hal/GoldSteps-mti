@@ -27,7 +27,7 @@ lambda_deploy(){
         echo 関数${funame}のデプロイを開始します
         zip -r ${funame}.zip ${lambdaf}
         aws lambda create-function  --function-name ${funame} \
-        --runtime nodejs14.x \
+        --runtime nodejs16.x \
         --role arn:aws:iam::347867041416:role/internship_exec_role \
         --handler ${funame}.handler  --zip-file fileb://${funame}.zip \
         --region ap-northeast-1
