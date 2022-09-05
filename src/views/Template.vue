@@ -29,5 +29,5 @@ export default {
 }
 </script>
 <style scoped>
-/* このコンポーネントだけに適用するCSSは */
+/* このコンポーネントだけに適用するCSSはここに記載する */
 </style>

@@ -9,11 +9,13 @@
 </template>
 
 <script>
-// import { baseUrl } from '@/assets/config.js';
-// import axios from "axios";
 // 必要なものはここでインポートする
 // @は/srcと同じ意味です
 // import something from '@/components/something.vue';
+// import { baseUrl } from '@/assets/config.js';
+// import axios from "axios";
+
+const headers = {'Authorization' : 'mtiToken'};
 
 export default {
   name: 'Home',
@@ -26,51 +28,37 @@ export default {
       post: {
         text: null,
         category: null,
-        err: null
       },
       search: {
-        username: null,
+        userId: null,
         category: null,
         start: null,
         end: null,
-        err: null,
-      },
-      query: {
-        start: null,
-        end: null
       },
       articles: [],
-      iam: null
+      iam: null,
     };
   },
   computed: {
   // 計算した結果を変数として利用したいときはここに記述する
-    /*
-    sortedArticles() {
-    }
-    */
   },
-  created() {
+  
+  created: async function() {
     // Vue.jsの読み込みが完了したときに実行する処理はここに記述する
-    this.iam = localStorage.getItem("userId");
     // apiからarticleを取得する
   },
+
   methods: {
     // Vue.jsで使う関数はここで記述する
-    /*
-    getArticles() {
-    },
-    postArticle() {
-    },
-    searchArticle() {
-    },
-    deleteArticle(article) {
-    },
-    fromUnixtoDate(timestamp) {
-    }
-    */
+    // isMyArticle(id) {}, // 自分の記事かどうかを判定する
+    // async getArticles() {}, // 記事一覧を取得する
+    // async postArticle() {}, // 記事を作成する
+    // async getSearchedArticles() {}, // 記事を検索する
+    // async deleteArticle(article) {}, // 記事を削除する
+    // convertToLocaleString(timestamp) {} // timestampをLocaleDateStringに変換する
   }
 }
 </script>
+
 <style scoped>
 </style>
