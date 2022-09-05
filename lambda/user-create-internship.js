@@ -1,8 +1,8 @@
 const AWS = require("aws-sdk");
 const dynamo = new AWS.DynamoDB.DocumentClient();
-const tableName = "User";
+const TableName = "User";
 
-exports.handler = (event, context, callback) => {
+exports.handler = async (event, context) => {
   const response = {
     statusCode: 200,
     headers: {
@@ -12,23 +12,22 @@ exports.handler = (event, context, callback) => {
   };
 
   const body = JSON.parse(event.body);
-
-  //TODO: DBに登録するための情報をparamオブジェクトとして宣言する（中身を記述）
+  
+  // TODO: DBに登録するための情報をparamオブジェクトとして宣言する（中身を記述）
   const param = {};
+  
+  try{
+    // dynamo.put()でDBにデータを登録
+    await dynamo.put(param).promise();
+    // TODO: 登録に成功した場合の処理を記載する。(status codeの設定と、response bodyの設定)
 
-  //dynamo.put()でDBにデータを登録
-  dynamo.put(param, function (err, data) {
-    if (err) {
-      console.log(err);
-      response.statusCode = 500;
-      response.body = JSON.stringify({
-        message: "予期せぬエラーが発生しました",
-        err: err
-      });
-      callback(null, response);
-      return;
-    } else {
-      //TODO: 登録に成功した場合の処理を記述
-    }
-  });
-};
+  }catch(e){
+    response.statusCode = 500;
+    response.body = JSON.stringify({
+      message: "予期せぬエラーが発生しました。",
+      errorDetail: e.toString()
+    });
+  }
+  
+  return response;
+}

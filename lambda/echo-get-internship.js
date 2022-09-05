@@ -1,4 +1,4 @@
-exports.handler = (event, context, callback) => {
+exports.handler = async (event, context) => {
   const response = {
     statusCode: 200,
     headers: {
@@ -6,11 +6,10 @@ exports.handler = (event, context, callback) => {
     },
     body: JSON.stringify({ message: "" }),
   };
+  
+  //TODO: 任意の変数にクエリストリングのnameに該当する値を代入してください。
 
-  //TODO: 変数qnameにクエリストリングのnameに該当する値を代入してください。
-
-  //TODO: responseオブジェクトのbodyプロパティに変数qnameを代入してください。
-
-  //コールバック関数でレスポンスを返す
-  callback(null, response);
+  //TODO: responseオブジェクトのbodyプロパティに↑の変数を文字列に変換した上で代入してください。
+  
+  return response;
 };
