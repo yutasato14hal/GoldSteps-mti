@@ -1,4 +1,4 @@
-exports.handler = (event, context, callback) => {
+exports.handler = async (event, context) => {
   const response = {
     statusCode: 200,
     headers: {
@@ -7,10 +7,9 @@ exports.handler = (event, context, callback) => {
     body: JSON.stringify({ message: "" }),
   };
 
-  //TODO: 変数rbodyにリクエストボディのJavaScriptオブジェクトを代入してください。
+  //TODO: 任意の変数に、リクエストボディをJavaScriptオブジェクトに変換した上で代入してください。
 
-  //TODO: responseオブジェクトのbodyプロパティに変数rbodyを代入
-
-  //コールバック関数でレスポンスを返す
-  callback(null, response);
+  //TODO: responseオブジェクトのbodyプロパティに↑の変数を文字列に変換した上で代入してください
+  
+  return response;
 };

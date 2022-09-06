@@ -16,16 +16,16 @@ export default {
 
   },
   methods: {
-    getRequestTemplate() {
-      axios.get(baseUrl + "/test")
-        .then((response) => {
-          // 成功したときの処理はここに記述する
-          console.log(response);
-        })
-        .catch(() => {
-          // レスポンスがエラーで返ってきたときの処理はここに記述する
-        }
-      );
+    async getRequestTemplate() {
+      // headerを指定する
+      const headers = {'Authorization' : 'mtiToken'};
+  
+      try{
+        const res = await axios.get(baseUrl + '/test',  { headers });
+        // 成功時の処理
+      }catch(e) {
+        // エラー時の処理
+      }
     }
   },
 }

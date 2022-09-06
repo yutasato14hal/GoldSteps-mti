@@ -16,21 +16,20 @@ export default {
 
   },
   methods: {
-    deleteRequestTemplate() {
-      axios.delete(baseUrl + "/test", {  data: {
-        // Overwrite Axios's automatically set Content-Type
-        // getと同じ書き方だと動作が不安定だったため、以下の書き方に変更しています。
-        value1: "value1",
-        value2: "value2"
-        }})
-        .then((response) => {
-          // 成功したときの処理はここに記述する
-          console.log(response);
-        })
-        .catch(() => {
-          // レスポンスがエラーで返ってきたときの処理はここに記述する
-        }
-      );
+    async deleteRequestTemplate() {
+      // bodyに渡すデータを指定する
+      const data = {
+        value1: "value1" 
+      }
+      // headerを指定する
+      const headers = {'Authorization' : 'mtiToken'};
+      
+      try {
+        await axios.delete(baseUrl + '/test', { data, headers });
+        // 成功時の処理
+      }catch(e){
+        // エラー時の処理
+      }
     }
   },
 }

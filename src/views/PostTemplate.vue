@@ -16,20 +16,21 @@ export default {
 
   },
   methods: {
-    postRequestTemplate() {
+    async postRequestTemplate() {
+      // headerを指定する
+      const headers = {'Authorization' : 'mtiToken'};
+      // リクエストボディを指定する
       const requestBody = {
-        value1: "value1",
-        value2: "value2"
+        value1: 'value1',
+        value2: 'value2'
+      };
+      
+      try {
+        const res = await axios.post(baseUrl + '/test', requestBody, { headers });
+        // 成功時の処理
+      }catch(e){
+        // エラー時の処理
       }
-      axios.post(baseUrl + "/test", requestBody)
-        .then((response) => {
-          // 成功したときの処理はここに記述する
-          console.log(response);
-        })
-        .catch(() => {
-          // レスポンスがエラーで返ってきたときの処理はここに記述する
-        }
-      );
     }
   },
 }
