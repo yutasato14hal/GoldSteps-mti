@@ -11,6 +11,7 @@ exports.handler = async (event, context) => {
     body: JSON.stringify({ message: "" }),
   };
   
+  //TODO: 取得対象のテーブル名をparamに宣言
   const param = {};
   
     

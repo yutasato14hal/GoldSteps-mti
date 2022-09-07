@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
     body: JSON.stringify({ message: "" }),
   };
 
-  const body = JSON.parse(event.body);
+  // TODO: リクエストボディの中身をJavaScriptオブジェクトに変換し、1つ、あるいは複数の変数に代入する
   
   // TODO: DBに登録するための情報をparamオブジェクトとして宣言する（中身を記述）
   const param = {};
