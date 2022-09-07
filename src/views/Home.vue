@@ -15,7 +15,7 @@
 // import { baseUrl } from '@/assets/config.js';
 // import axios from "axios";
 
-const headers = {'Authorization' : 'mtiToken'};
+// const headers = {'Authorization' : 'mtiToken'};
 
 export default {
   name: 'Home',

@@ -13,6 +13,7 @@ exports.handler = async (event, context) => {
   };
 
   const userId = event.queryStringParameters.userId; //見たいユーザのuserId
+
   //TODO: 取得対象のテーブル名と検索に使うキーをparamに宣言
   const param = {};
   

@@ -11,7 +11,8 @@ exports.handler = async (event, context) => {
     body: JSON.stringify({ message: "" }),
   };
   
-  const body = JSON.parse(event.body);
+  // TODO: リクエストボディの中身をJavaScriptオブジェクトに変換し、1つ、あるいは複数の変数に代入する
+  
   // TODO: paramに更新対象のテーブル名と更新内容を記述
   const param = {}
 
