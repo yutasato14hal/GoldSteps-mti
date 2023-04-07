@@ -13,15 +13,16 @@
 // @は/srcと同じ意味です
 // import something from '@/components/something.vue';
 // import { baseUrl } from '@/assets/config.js';
-// import axios from "axios";
 
 // const headers = {'Authorization' : 'mtiToken'};
 
 export default {
   name: 'Home',
+
   components: {
    // 読み込んだコンポーネント名をここに記述する
   },
+
   data() {
     // Vue.jsで使う変数はここに記述する
     return {
@@ -42,7 +43,7 @@ export default {
   computed: {
   // 計算した結果を変数として利用したいときはここに記述する
   },
-  
+
   created: async function() {
     // Vue.jsの読み込みが完了したときに実行する処理はここに記述する
     // apiからarticleを取得する
