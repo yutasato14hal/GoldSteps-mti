@@ -27,8 +27,17 @@ export default {
           method: 'GET',
           headers
         });
+
+        const text = await res.text();
+        const jsonData = text ? JSON.parse(text) : {}
+
+        // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
+        if (!res.ok) {
+          const errorMessage = jsonData.message ?? 'エラーメッセージがありません';
+          throw new Error(errorMessage);
+        }
+        
         // 成功時の処理
-        const jsonData = await res.json();
         console.log(jsonData);
       } catch (e) {
         // エラー時の処理

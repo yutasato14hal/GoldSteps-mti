@@ -25,10 +25,20 @@ export default {
       const queryParam1Value = 'value1';
 
       try {
-        await fetch(`${baseUrl}/test?$param1=${queryParam1Value}`, {
+        const res = await fetch(`${baseUrl}/test?$param1=${queryParam1Value}`, {
           method: 'DELETE',
           headers
         });
+
+        const text = await res.text();
+        const jsonData = text ? JSON.parse(text) : {}
+
+        // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
+        if (!res.ok) {
+          const errorMessage = jsonData.message ?? 'エラーメッセージがありません';
+          throw new Error(errorMessage);
+        }
+
         // 成功時の処理
       } catch (e) {
         // エラー時の処理
