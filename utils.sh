@@ -29,7 +29,7 @@ lambda_deploy() {
         echo "関数${filename}の処理を開始します"
     else
         # 指定したファイル名が存在しない場合は処理を中断します。
-        echo "${filename}は/lambdaに存在しないようです 存在するファイル名を指定しましょう"
+        echo "${filename}はlambda/配下に存在しないようです 存在するファイル名を指定しましょう"
         exit 1
     fi
     
