@@ -50,12 +50,43 @@ lambda_update(){
 }
 
 s3_deploy(){
-    aws s3 mb s3://${name}-internship
+    sudo yum -y install jq
+    
+    bucket_name="${name}-internship"
+    
+    policy=$(printf '{
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "PublicReadGetObject",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::%s/*"
+            }
+        ]
+    }' ${bucket_name} | jq .)
+
+    aws s3api create-bucket \
+        --bucket "${bucket_name}" \
+        --region ap-northeast-1 \
+        --create-bucket-configuration "LocationConstraint=ap-northeast-1"
+    
+    aws s3api put-public-access-block \
+        --bucket "${bucket_name}" \
+        --public-access-block-configuration "BlockPublicPolicy=false"
+
+    aws s3api put-bucket-policy \
+        --bucket "${bucket_name}" \
+        --policy "${policy}"
+        
+    aws s3 website s3://${bucket_name}/ \
+        --index-document "index.html"
 }
 
 s3_update(){
     npm run build
-    aws s3 cp ./dist s3://${name}-internship --recursive --acl public-read
+    aws s3 cp ./dist s3://${name}-internship --recursive
 }
 
 deletename(){
