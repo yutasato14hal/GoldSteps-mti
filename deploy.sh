@@ -69,7 +69,7 @@ s3_deploy(){
 
     aws s3api create-bucket \
         --bucket "${bucket_name}" \
-        --region ap-northeast-1 \
+        --region "ap-northeast-1" \
         --create-bucket-configuration "LocationConstraint=ap-northeast-1"
     
     aws s3api put-public-access-block \
@@ -79,9 +79,6 @@ s3_deploy(){
     aws s3api put-bucket-policy \
         --bucket "${bucket_name}" \
         --policy "${policy}"
-        
-    aws s3 website s3://${bucket_name}/ \
-        --index-document "index.html"
 }
 
 s3_update(){
