@@ -61,31 +61,11 @@ lambda_deploy() {
 
 lambda_deploy_all(){
 
-    cd lambda
-
-    for lambdaf in *.js
+    for lambdaf in lambda/*.js
     do
-        funame=$(echo $lambdaf | sed s/.js//)
-        aws lambda get-function --function-name $funame > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
-            # functionが存在している時
-            echo "関数${funame}の内容を更新します"
-            zip -r ${funame}.zip ${lambdaf}
-            aws lambda update-function-code  --function-name ${funame} \
-            --zip-file fileb://${funame}.zip
-            rm ${funame}.zip
-            
-        else
-            # functionが存在していない時
-            echo "関数${funame}のデプロイを開始します"
-            zip -r ${funame}.zip ${lambdaf}
-            aws lambda create-function  --function-name ${funame} \
-            --runtime nodejs16.x \
-            --role arn:aws:iam::347867041416:role/internship_exec_role \
-            --handler ${funame}.handler  --zip-file fileb://${funame}.zip \
-            --region ap-northeast-1
-            rm ${funame}.zip
-        fi
+        # lambda_deployはファイル名を引数として受け取る想定のため、不要な"lambda/"を取り除いています
+        filename=$(echo $lambdaf | sed "s/lambda\///")
+        lambda_deploy $filename
     done
     cd ..
 }
