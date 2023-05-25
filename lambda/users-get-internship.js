@@ -1,5 +1,6 @@
-const AWS = require("aws-sdk");
-const dynamo = new AWS.DynamoDB.DocumentClient();
+const { DynamoDBClient, ScanCommand } = require("@aws-sdk/client-dynamodb");
+const { unmarshall } = require("@aws-sdk/util-dynamodb");
+const client = new DynamoDBClient({ region: "ap-northeast-1" });
 const TableName = "User";
 
 exports.handler = async (event, context) => {
@@ -10,26 +11,26 @@ exports.handler = async (event, context) => {
     },
     body: JSON.stringify({ message: "" }),
   };
-  
+
   //TODO: 取得対象のテーブル名をparamに宣言
   const param = {};
-  
-    
-  try{
-    // dynamo.scan()で全件取得
-    const users = (await dynamo.scan(param).promise()).Items;
+
+  const command = new ScanCommand(param);
+
+  try {
+    // client.send()で全件取得するコマンドを実行
+    const users = (await client.send(command)).Items;
 
     //TODO: 全ユーザのpasswordを隠蔽する処理を記述
 
     //TODO: レスポンスボディを設定する
-  
-  }catch(e){
+  } catch (e) {
     response.statusCode = 500;
     response.body = JSON.stringify({
       message: "予期せぬエラーが発生しました。",
-      errorDetail: e.toString()
+      errorDetail: e.toString(),
     });
   }
-  
+
   return response;
 };
