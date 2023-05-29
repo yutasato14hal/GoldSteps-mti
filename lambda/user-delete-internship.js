@@ -1,5 +1,9 @@
-const AWS = require("aws-sdk");
-const dynamo = new AWS.DynamoDB.DocumentClient();
+const {
+  DynamoDBClient,
+  DeleteItemCommand,
+} = require("@aws-sdk/client-dynamodb");
+const { marshall } = require("@aws-sdk/util-dynamodb");
+const client = new DynamoDBClient({ region: "ap-northeast-1" });
 const TableName = "User";
 
 exports.handler = async (event, context) => {
@@ -10,25 +14,26 @@ exports.handler = async (event, context) => {
     },
     body: JSON.stringify({ message: "" }),
   };
-  
-  const userId = (JSON.parse(event.body)).userId
+
+  const userId = JSON.parse(event.body).userId;
 
   // TODO: 削除対象のテーブル名と削除したいデータのkeyをparamに設定
   const param = {};
-  
-  
- try{
-    // dynamo.delete()を用いてデータを削除
-    await dynamo.delete(param).promise();
+
+  // データを削除するコマンドを用意
+  const command = new DeleteItemCommand(param);
+
+  try {
+    // client.send()を用いてデータを削除するコマンドを実行
+    await client.send(command);
     // TODO: 成功後の処理を記載(status codeを指定する。)
-  
-  }catch(e){
+  } catch (e) {
     response.statusCode = 500;
     response.body = JSON.stringify({
       message: "予期せぬエラーが発生しました。",
-      errorDetail: e.toString()
+      errorDetail: e.toString(),
     });
   }
-  
+
   return response;
 };

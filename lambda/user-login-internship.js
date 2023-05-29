@@ -1,5 +1,6 @@
-const AWS = require("aws-sdk");
-const dynamo = new AWS.DynamoDB.DocumentClient();
+const { DynamoDBClient, QueryCommand } = require("@aws-sdk/client-dynamodb");
+const { marshall } = require("@aws-sdk/util-dynamodb");
+const client = new DynamoDBClient({ region: "ap-northeast-1" });
 const TableName = "User";
 
 exports.handler = async (event, context) => {
@@ -10,7 +11,7 @@ exports.handler = async (event, context) => {
     },
     body: JSON.stringify({ message: "" }),
   };
-  
+
   // TODO: リクエストボディの中身をJavaScriptオブジェクトに変換し、1つ、あるいは複数の変数に代入する
 
   // TODO: query()に渡すパラムを宣言
@@ -21,25 +22,25 @@ exports.handler = async (event, context) => {
     //プライマリーキー以外の属性でのフィルタ
     FilterExpression: "",
     //検索値のプレースホルダの定義
-    ExpressionAttributeValues: {
-    },
+    ExpressionAttributeValues: {},
   };
 
-  try{
-    // dynamo.query()を用いてuserIdとpasswordが一致するデータの検索
-    const res = await dynamo.query(param).promise();
-    
+  // userIdとpasswordが一致するデータを検索するコマンドを用意
+  const command = new QueryCommand(param);
+  try {
+    // client.send()の実行でuserIdとpasswordが一致するデータの検索
+    const res = await client.send(command);
+
     //TODO: 該当するデータが見つからない場合の処理を記述(ヒント：resの中には個数のプロパティが入っています。)
 
     //TODO: 認証が成功した場合のレスポンスボディを設定する。
-
-  }catch(e){
+  } catch (e) {
     response.statusCode = 500;
     response.body = JSON.stringify({
       message: "予期せぬエラーが発生しました。",
-      errorDetail: e.toString()
+      errorDetail: e.toString(),
     });
   }
-  
+
   return response;
 };

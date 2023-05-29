@@ -3,7 +3,7 @@
 はじめに以下のコマンドで実行権限を与える
 
 ```bash
-chmod 755 ./deploy.sh
+chmod 755 ./utils.sh
 ```
 
 ## ファイル名変更
@@ -11,23 +11,26 @@ chmod 755 ./deploy.sh
 先に `yourname.env` を変更しておくこと
 
 ```bash
-./deploy.sh
+./utils.sh
 ```
 
 ## Lambda
 
-### Lambda のデプロイ(新規)
+### 全てのLambda関数 のデプロイ(新規または更新)
 
 ./lambda 以下の全ファイルがデプロイされる
 
 ```bash
-./deploy.sh lambda_deploy
+./utils.sh lambda_deploy_all
 ```
 
-### Lambda のデプロイ(更新)
+### 特定のLambda関数 のデプロイ(新規または更新)
+
+./lambda 以下の指定したファイルのみがデプロイされる
 
 ```bash
-./deploy.sh lambda_update
+./utils.sh lambda_deploy <FILENAME>
+// FILENAMEの部分は"suzuki-i-echo-get-internship.js"のような実際のファイル名に置き換えてください
 ```
 
 ## S3
@@ -35,18 +38,12 @@ chmod 755 ./deploy.sh
 ### S3 バケットの作成
 
 ```bash
-./deploy.sh s3_deploy
+./utils.sh s3_deploy
 ```
 
 ### S3 へのデプロイ
 
 ```bash
-npm run build
-./deploy.sh s3_update
+./utils.sh s3_update
 ```
 
-もしくは
-
-```bash
-npm run build && ./deploy.sh s3_update
-```
