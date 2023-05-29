@@ -19,8 +19,8 @@ export default {
   },
 
   data() {
+    // Vue.jsで使う変数はここに記述する
     return {
-      // Vue.jsで使う変数はここに記述する
     };
   },
 
