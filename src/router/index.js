@@ -1,19 +1,24 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 import Home from '../views/Home.vue'
 
-Vue.use(VueRouter)
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'Home',
+      component: Home,
+      meta: {
+        title: 'Home'
+      }
+    },
+  ]
+})
 
-const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
-]
+const DEFAULT_TITLE = 'TITLE';
 
-const router = new VueRouter({
-  routes
+router.afterEach((to) => {
+  document.title = to.meta.title ?? DEFAULT_TITLE
 })
 
 export default router
