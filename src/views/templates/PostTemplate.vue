@@ -28,6 +28,7 @@ export default {
       };
 
       try {
+        /* global fetch */
         const res = await fetch(baseUrl + '/test',  {
           method: 'POST',
           body: JSON.stringify(requestBody),

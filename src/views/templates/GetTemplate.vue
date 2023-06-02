@@ -23,6 +23,7 @@ export default {
       const headers = {'Authorization': 'mtiToken'};
 
       try {
+        /* global fetch */
         const res = await fetch(baseUrl + '/test',  {
           method: 'GET',
           headers

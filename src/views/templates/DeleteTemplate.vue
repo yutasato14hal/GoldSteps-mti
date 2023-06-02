@@ -25,6 +25,7 @@ export default {
       const queryParam1Value = 'value1';
 
       try {
+        /* global fetch */
         const res = await fetch(`${baseUrl}/test?$param1=${queryParam1Value}`, {
           method: 'DELETE',
           headers
