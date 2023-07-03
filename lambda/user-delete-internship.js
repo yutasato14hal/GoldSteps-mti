@@ -15,7 +15,7 @@ exports.handler = async (event, context) => {
     body: JSON.stringify({ message: "" }),
   };
 
-  const userId = JSON.parse(event.body).userId;
+  const userId = event.queryStringParameters?.userId;
 
   // TODO: 削除対象のテーブル名と削除したいデータのkeyをparamに設定
   const param = {};
