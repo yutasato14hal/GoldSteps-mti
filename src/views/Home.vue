@@ -7,7 +7,6 @@
           <div class="field">
             <textarea v-model="post.text" name="article-content" placeholder="whats up！" />
           </div>
-
           <div class="field">
             <label for="article-category">category</label>
             <input v-model="post.category" type="text" id="article-category" name="article-category" />
@@ -19,9 +18,9 @@
           </div>
         </form>
       </div>
-      <!-- 検索ボックス -->
+       検索ボックス 
       <div class="ui segment">
-        <form class="ui form" @submit.prevent="getSearchedArticles">
+        <form class="ui form" @submit.prevent="">
           <div class="field">
             <label for="userId">userId</label>
             <input v-model="search.userId" type="text" id="userId" name="userId" placeholder="userId" />
@@ -52,8 +51,6 @@
           </div>
         </form>
       </div>
-
-      <!-- 投稿一覧 -->
       <h3 class="ui dividing header">articles</h3>
       <div class="ui segment">
         <ul class="ui comments divided article-list">
@@ -183,12 +180,10 @@
 
           const text = await res.text();
           const jsonData = text ? JSON.parse(text) : {};
-
-          // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
           if (!res.ok) {
-            const errMessage =
+            const errMsg =
               jsonData.message ?? "エラーメッセージがありません";
-            throw new Error(errMessage);
+            throw new Error(errMsg);
           }
 
           this.articles.unshift({ ...req, timestamp: Date.now() });
@@ -206,33 +201,6 @@
       },
 
 
-
-      // async getArticles() {
-      //   if (this.isCallingApi) {
-      //   return;
-      // }
-      // this.isCallingApi = true;
-      //   const headers = { 'Authorization': 'mtiToken' };
-      //   const { userId, text, category, timestamp} = this
-      //   try {
-      //     /* global fetch */
-      //     const res = await fetch(baseUrl + '/articles', {
-      //       method: 'GET',
-      //       headers
-      //     })
-      //     const text = await res.text();
-      //     const jsonData = text ? JSON.parse(text) : {}
-      //     // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
-      //     if (!res.ok) {
-      //       const errMsg = jsonData.message ?? 'エラーメッセージがありません';
-      //       throw new Error(errMsg);
-      //     }
-      //   }
-      //   catch (e) {
-      //     // エラー時の処理
-      //   }
-      // }
-
       async deleteArticle(article) {
         if (this.isCallingApi) {
           return;
@@ -241,7 +209,7 @@
 
         const { userId, timestamp } = article;
         try {
-          /* global fetch */
+         
           const res = await fetch(
             `${baseUrl}/article?userId=${userId}&timestamp=${timestamp}`, {
               method: "DELETE",
@@ -251,23 +219,21 @@
 
           const text = await res.text();
           const jsonData = text ? JSON.parse(text) : {};
-
-          // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
           if (!res.ok) {
-            const errorMessage =
-              jsonData.message ?? "エラーメッセージがありません";
-            throw new Error(errorMessage);
+            const errMsg =
+              jsonData.message ?? "no ms";
+            throw new Error(errMsg);
           }
 
           const deleted = this.articles.findIndex(
             (a) => a.userId === userId && a.timestamp === timestamp
           );
           this.articles.splice(deleted, 1);
-          this.successMsg = "記事が削除されました！";
+          this.oksMsg = "deleteOk";
         }
         catch (e) {
           console.error(e);
-          this.errorMsg = e;
+          this.errMsg = e;
         }
         finally {
           this.isCallingApi = false;
