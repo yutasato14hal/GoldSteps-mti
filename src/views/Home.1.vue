@@ -44,7 +44,7 @@
           <div class="right-align">
             <button
               class="ui green button"
-              v-bind:abled="isPostButtonDisabled"
+              v-bind:disabled="isPostButtonDisabled"
               type="submit"
             >
               投稿
