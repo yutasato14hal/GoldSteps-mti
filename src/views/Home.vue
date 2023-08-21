@@ -1,5 +1,4 @@
 <template>
-  <Menu />
   <div>
     <div class="ui main container">
       <!-- 基本的なコンテンツはここに記載する -->
@@ -14,11 +13,8 @@
 // @は/srcと同じ意味です
 // import something from '@/components/something.vue';
 // import { baseUrl } from '@/assets/config.js';
-import Menu from '@/components/Menu.vue';
-
 
 export default {
-  name: 'Home',
 
   components: {
    // 読み込んだコンポーネント名をここに記述する
