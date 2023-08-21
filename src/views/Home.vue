@@ -5,19 +5,81 @@
       <div class="ui segment">
         <form class="ui form" @submit.prevent="postArticle">
           <div class="field">
-            <textarea v-model="post.text" name="article-content" placeholder="あなたの投稿を発信しましょう！" />
+            <textarea v-model="post.text" name="article-content" placeholder="whats up！" />
           </div>
 
           <div class="field">
-            <label for="article-category">カテゴリー</label>
+            <label for="article-category">category</label>
             <input v-model="post.category" type="text" id="article-category" name="article-category" />
           </div>
           <div class="right-align">
             <button class="ui black button" v-bind:disabled="PostButton" type="submit">
-              投稿
+              POST
             </button>
           </div>
         </form>
+      </div>
+      <!-- 検索ボックス -->
+      <div class="ui segment">
+        <form class="ui form" @submit.prevent="getSearchedArticles">
+          <div class="field">
+            <label for="userId">userId</label>
+            <input v-model="search.userId" type="text" id="userId" name="userId" placeholder="userId" />
+          </div>
+
+          <div class="field">
+            <label for="category">category</label>
+            <input v-model="search.category" type="text" id="category" name="category" placeholder="category" />
+          </div>
+
+          <div class="field">
+            <label>timestamp</label>
+            <div class="inline fields">
+              <div class="field">
+                <input v-model="search.start" type="datetime-local" id="timestampstart" name="timestampstart" />
+                <label for="timestampstart">～</label>
+              </div>
+
+              <div class="field">
+                <input v-model="search.end" type="datetime-local" id="timestampend" name="timestampend" />
+              </div>
+            </div>
+          </div>
+          <div class="right-align">
+            <button class="ui black button" type="submit" v-bind:disabled="isSearchButtonDisabled">
+              search
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 投稿一覧 -->
+      <h3 class="ui dividing header">articles</h3>
+      <div class="ui segment">
+        <ul class="ui comments divided article-list">
+          <template v-for="(article, index) in articles" :key="index">
+            <li class="comment">
+              <div class="content">
+                <span class="author">{{ article.userId }}</span>
+                <div class="metadata">
+                  <span class="date">{{
+                    convertToLocaleString(article.timestamp)
+                  }}</span>
+                </div>
+                <button v-if="isMyArticle(article.userId)" class="ui negative mini button right floated" @click="deleteArticle(article)">
+                  delete
+                </button>
+                <p class="text">
+                  {{ article.text }}
+                </p>
+                <span v-if="article.category" class="ui black label">{{
+                  article.category
+                }}</span>
+                <div class="ui divider"></div>
+              </div>
+            </li>
+          </template>
+        </ul>
       </div>
     </div>
   </div>
@@ -28,7 +90,7 @@
   // @は/srcと同じ意味です
   // import something from '@/components/something.vue';
   import { baseUrl } from "@/assets/config.js";
-  
+
   const headers = { Authorization: "mtiToken" };
 
   export default {
@@ -142,11 +204,83 @@
           this.isCallingApi = false;
         }
       },
-    },
+
+
+
+      // async getArticles() {
+      //   if (this.isCallingApi) {
+      //   return;
+      // }
+      // this.isCallingApi = true;
+      //   const headers = { 'Authorization': 'mtiToken' };
+      //   const { userId, text, category, timestamp} = this
+      //   try {
+      //     /* global fetch */
+      //     const res = await fetch(baseUrl + '/articles', {
+      //       method: 'GET',
+      //       headers
+      //     })
+      //     const text = await res.text();
+      //     const jsonData = text ? JSON.parse(text) : {}
+      //     // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
+      //     if (!res.ok) {
+      //       const errMsg = jsonData.message ?? 'エラーメッセージがありません';
+      //       throw new Error(errMsg);
+      //     }
+      //   }
+      //   catch (e) {
+      //     // エラー時の処理
+      //   }
+      // }
+
+      async deleteArticle(article) {
+        if (this.isCallingApi) {
+          return;
+        }
+        this.isCallingApi = true;
+
+        const { userId, timestamp } = article;
+        try {
+          /* global fetch */
+          const res = await fetch(
+            `${baseUrl}/article?userId=${userId}&timestamp=${timestamp}`, {
+              method: "DELETE",
+              headers,
+            }
+          );
+
+          const text = await res.text();
+          const jsonData = text ? JSON.parse(text) : {};
+
+          // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
+          if (!res.ok) {
+            const errorMessage =
+              jsonData.message ?? "エラーメッセージがありません";
+            throw new Error(errorMessage);
+          }
+
+          const deleted = this.articles.findIndex(
+            (a) => a.userId === userId && a.timestamp === timestamp
+          );
+          this.articles.splice(deleted, 1);
+          this.successMsg = "記事が削除されました！";
+        }
+        catch (e) {
+          console.error(e);
+          this.errorMsg = e;
+        }
+        finally {
+          this.isCallingApi = false;
+        }
+      },
+
+      convertToLocaleString(timestamp) {
+        return new Date(timestamp).toLocaleString();
+      },
+    }
   };
 </script>
 
 <style scoped>
   /* このコンポーネントだけに適用するCSSはここに記述する */
-  
 </style>
