@@ -17,97 +17,45 @@
 
       <!-- 検索ボックス -->
       <div class="ui segment">
-        <form class="ui form" @submit.prevent="getSearchedArticles">
+        <form class="ui form">
           <div class="field">
-            <label for="userId">ユーザーID</label>
-            <input
-              v-model="search.userId"
-              type="text"
-              id="userId"
-              name="userId"
-              placeholder="ユーザーID"
-            />
+            <label for="nickname">ユーザー名</label>
+            <input v-model="nickname" type="text" id="nickname" name="nickname" placeholder="Nickname" />
           </div>
 
           <div class="field">
-            <label for="category">カテゴリー名</label>
-            <input
-              v-model="search.category"
-              type="text"
-              id="category"
-              name="category"
-              placeholder="カテゴリ"
-            />
-          </div>
-
-          <div class="field">
-            <label>投稿日時</label>
+            <label>年齢</label>
             <div class="inline fields">
               <div class="field">
-                <input
-                  v-model.number="search.start"
-                  type="datetime-local"
-                  id="timestampstart"
-                  name="timestampstart"
-                />
-                <label for="timestampstart">から</label>
+                <input v-model.number="start" type="text" id="agestart" name="agestart"/>
+                <label for="agestart">歳から</label>
               </div>
 
               <div class="field">
-                <input
-                  v-model.number="search.end"
-                  type="datetime-local"
-                  id="timestampend"
-                  name="timestampend"
-                />
-                <label for="timestampend">まで</label>
+                <input v-model.number="end" type="text" id="ageend" name="ageend"/>
+                <label for="ageend">歳まで</label>
               </div>
             </div>
-          </div>
-          <div class="right-align">
-            <button
-              class="ui green button"
-              type="submit"
-              v-bind:abled="isSearchButtonDisabled"
-            >
-              検索
-            </button>
           </div>
         </form>
       </div>
 
-      <!-- 投稿一覧 -->
-      <h3 class="ui dividing header">投稿一覧</h3>
-      <div class="ui segment">
-        <ul class="ui comments divided article-list">
-          <template v-for="(article, index) in filteredArticles" :key="index">
-            <li class="comment">
+      <!-- ユーザー一覧 -->
+      <ul class="ui three column grid">
+        <template v-for="(item, index) in filteredUsers" :key="index">
+          <li class="column">
+            <div class="ui card fluid" >
               <div class="content">
-                <span class="author">{{ article.userId }}</span>
-                <div class="metadata">
-                  <span class="date">{{
-                    convertToLocaleString(article.timestamp)
-                  }}</span>
-                </div>
-                <button
-                  v-if="isMyArticle(article.userId)"
-                  class="ui negative mini button right floated"
-                  @click="deleteArticle(article)"
-                >
-                  削除
-                </button>
-                <p class="text">
-                  {{ article.text }}
-                </p>
-                <span v-if="article.category" class="ui green label">{{
-                  article.category
-                }}</span>
-                <div class="ui divider"></div>
+                <h2 class="header">
+                  {{ item.nickname }}
+                  <span class="ui green label">{{ item.age }}</span>
+                </h2>
+                <span class="meta">{{ item.userId }} </span>
               </div>
-            </li>
-          </template>
-        </ul>
-      </div>
+            </div>
+          </li>
+        </template>
+      </ul>
     </div>
   </div>
 </template>
@@ -121,7 +69,7 @@ import { baseUrl } from '@/assets/config.js';
 const headers = { 'Authorization': 'mtiToken' };
 
 export default {
-  name: 'Article',
+  name: 'User',
 
   components: {
     // 読み込んだコンポーネント名をここに記述する
@@ -130,9 +78,8 @@ export default {
   data() {
     // Vue.jsで使う変数はここに記述する
     return {
-      articles: [],
-      userId: null,
-      category:null,
+      users: [],
+      nickname: '',
       start: 0,
       end: 100,
       errorMsg: '', // 発展課題のエラーメッセージ用
@@ -142,12 +89,11 @@ export default {
 
   computed: {
     // 計算した結果を変数として利用したいときはここに記述する
-    filteredArticles() {
-      return this.articles.filter(e =>
-        e.userId?.match(this.userId)
-        && e.category?.match(this.category)
-        && e.time >= this.start
-        && e.time <= this.end
+    filteredUsers() {
+      return this.users.filter(e =>
+        e.nickname?.match(this.nickname)
+        && e.age >= this.start
+        && e.age <= this.end
       );
     }
   },
@@ -165,7 +111,7 @@ export default {
 
     try {
       /* global fetch */
-      const res = await fetch(baseUrl + '/articles', {
+      const res = await fetch(baseUrl + '/users', {
         method: 'GET',
         headers
       });
@@ -179,7 +125,7 @@ export default {
         throw new Error(errorMessage);
       }
 
-      this.articles = jsonData.articles ?? [];
+      this.users = jsonData.users ?? [];
     } catch (e) {
       this.errorMsg = `ユーザーリスト取得時にエラーが発生しました: ${e}`;
     } finally {
