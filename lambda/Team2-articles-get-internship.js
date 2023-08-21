@@ -24,6 +24,7 @@ exports.handler = async (event, context) => {
   let param = []
   let flag = false;
   
+  //ユーザーIDが無効な場合
   if(!userId){
     param = {
       TableName, 
@@ -32,6 +33,7 @@ exports.handler = async (event, context) => {
     flag=true;
   }
   
+  //ユーザーIDが有効な場合
   else{
     const { userId, start, end, category } = event.queryStringParameters;
     
@@ -44,12 +46,15 @@ exports.handler = async (event, context) => {
       },
       ExpressionAttributeValues:{
           ':userId': userId,
+          //startが無効な場合は0以上とする
           ':start' : Number.isNaN(parseInt(start)) ? 0 : parseInt(start),
+          //endが無効な場合は現在時刻以下とする
           ':end' :Number.isNaN(parseInt(end)) ? Date.now() : parseInt(end),
       },
       KeyConditionExpression: '#u = :userId and #t BETWEEN :start AND :end',
     };
     
+    //カテゴリ指定がある場合
     if (category) {
       param.ExpressionAttributeValues[":category"] = category;
       param.FilterExpression = "category = :category";
@@ -66,11 +71,12 @@ exports.handler = async (event, context) => {
 
   try {
     //client.send()の実行でDBからデータを取得
+    //ユーザーIDがなく無効なパラメータの場合は全件取得
       const article = flag 
       ? (await client.send(scanCommand)).Items
       : (await client.send(queryCommand)).Items;
     
-    
+    //指定されたパラメータの記事が存在しない場合
     if (article?.length === 0){
       response.body = JSON.stringify({ articles: [] });
     }
