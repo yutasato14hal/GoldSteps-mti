@@ -1,9 +1,10 @@
-const { DynamoDBClient, ScanCommand } = require("@aws-sdk/client-dynamodb");
-const { unmarshall } = require("@aws-sdk/util-dynamodb");
+const { DynamoDBClient,  QueryCommand, ScanCommand } = require("@aws-sdk/client-dynamodb");
+const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 const client = new DynamoDBClient({ region: "ap-northeast-1" });
 const TableName = "Article";
 
 exports.handler = async (event, context) => {
+  //レスポンスの雛形
   const response = {
     statusCode: 200,
     headers: {
@@ -11,23 +12,73 @@ exports.handler = async (event, context) => {
     },
     body: JSON.stringify({ message: "" }),
   };
+  
+  if (event.headers.authorization !== "mtiToken") {
+    response.statusCode = 401;
+    response.body = JSON.stringify({
+      message: "認証されていません。HeaderにTokenを指定してください",
+    });
+  }
+  
+  const userId = event.queryStringParameters?.userId;
+  let param = []
+  let flag = false;
+  
+  if(!userId){
+    param = {
+      TableName, 
+      Limit: 100,
+    }
+    flag=true;
+  }
+  
+  else{
+    const { userId, start, end, category } = event.queryStringParameters;
+    
+    param = {
+      TableName,
+      Limit: 100,
+      ExpressionAttributeNames:{
+          '#u': 'userId',
+          '#t': 'timestamp',
+      },
+      ExpressionAttributeValues:{
+          ':userId': userId,
+          ':start' : Number.isNaN(parseInt(start)) ? 0 : parseInt(start),
+          ':end' :Number.isNaN(parseInt(end)) ? Date.now() : parseInt(end),
+      },
+      KeyConditionExpression: '#u = :userId and #t BETWEEN :start AND :end',
+    };
+    
+    if (category) {
+      param.ExpressionAttributeValues[":category"] = category;
+      param.FilterExpression = "category = :category";
+    }
+    
+    param.ExpressionAttributeValues = marshall(param.ExpressionAttributeValues)
+  }
 
-  //TODO: 取得対象のテーブル名をparamに宣言
-  const param = {
-    TableName,
-  };
+  
 
-  const command = new ScanCommand(param);
+  // 指定したアイテムを取得するコマンドを用意
+  const scanCommand = new ScanCommand(param);
+  const queryCommand = new QueryCommand(param);
 
   try {
-    // client.send()で全件取得するコマンドを実行
-    const articles = (await client.send(command)).Items;
-
-    //TODO: 全ユーザのpasswordを隠蔽する処理を記述
-
-    //TODO: レスポンスボディを設定する
-    const unmarshalledArticles = articles.map((item)=>unmarshall(item));
-    response.body=JSON.stringify({articles:unmarshalledArticles});
+    //client.send()の実行でDBからデータを取得
+      const article = flag 
+      ? (await client.send(scanCommand)).Items
+      : (await client.send(queryCommand)).Items;
+    
+    
+    if (article?.length === 0){
+      response.body = JSON.stringify({ articles: [] });
+    }
+    else{
+      const unmarshalledArticles = article.map((item) => unmarshall(item));
+      unmarshalledArticles.sort((a, b) => b.timestamp - a.timestamp);
+      response.body = JSON.stringify({ articles: unmarshalledArticles });
+    }
   } catch (e) {
     response.statusCode = 500;
     response.body = JSON.stringify({
