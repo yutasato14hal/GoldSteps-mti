@@ -15,10 +15,10 @@
 // import { baseUrl } from '@/assets/config.js';
 
 export default {
+  name: "Home",
 
   components: {
    // 読み込んだコンポーネント名をここに記述する
-   Menu
   },
 
   data() {
