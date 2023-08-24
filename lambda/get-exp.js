@@ -1,5 +1,5 @@
-const { DynamoDBClient, PutItemCommand, GetItemCommand } = require("@aws-sdk/client-dynamodb");
-const { marshall,unmarshall } = require("@aws-sdk/util-dynamodb");
+const { DynamoDBClient, UpdateItemCommand } = require("@aws-sdk/client-dynamodb");
+const { marshall } = require("@aws-sdk/util-dynamodb");
 const client = new DynamoDBClient({ region: "ap-northeast-1" });
 const TableName = "team2_user";
 
@@ -38,31 +38,28 @@ exports.handler = async (event, context) => {
 
   const { userId,exp } = JSON.parse(event.body);
  
- 
- const getParam = {
-    TableName,
+  const param = {
+    // ↓プロパティ名と変数名が同一の場合は、値の指定を省略できる。
+    TableName, 
     Key: marshall({
       userId,
     }),
- };
+    ExpressionAttributeNames: {
+      "#exp": "exp",
+    },
+    ExpressionAttributeValues: {
+      ":exp": exp,
+    },
+    UpdateExpression: "SET #exp = :exp",
 
-  // 指定したアイテムを取得するコマンドを用意
-  const getCommand = new GetItemCommand(getParam);
-
-  try {
-    const user = (await client.send(getCommand)).Item;
-    const unmarshallUser = unmarshall(user);
-    const newExp = Number(exp) + Number(unmarshallUser.exp);
-    const putParam = {
-        TableName,
-        Item: marshall({
-        userId,
-        'exp' : newExp, 
-        }),
-    };
-    const putCommand = new PutItemCommand(putParam);
-    await client.send(putCommand);
-    response.body = JSON.stringify({newExp});
+  };
+  
+  param.ExpressionAttributeValues = marshall(param.ExpressionAttributeValues)
+  
+  const command = new UpdateItemCommand(param);
+  try{
+    await client.send(command);
+    response.body = JSON.stringify({userId, exp});
   } catch (e) {
     response.statusCode = 500;
     response.body = JSON.stringify({
