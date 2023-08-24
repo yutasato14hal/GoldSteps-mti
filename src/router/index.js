@@ -51,7 +51,7 @@ const router = createRouter({
   ]
 })
 
-const DEFAULT_TITLE = 'TITLE';
+const DEFAULT_TITLE = 'TITLE'
 
 router.afterEach((to) => {
   document.title = to.meta.title ?? DEFAULT_TITLE

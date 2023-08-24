@@ -129,7 +129,7 @@
           { userId, password, nickname, age };
 
         try {
-          const res = await fetch(baseUrl + path, {
+          const res = await fetch(baseUr + path, {
             method: 'POST',
             body: JSON.stringify(reqBody)
           });
@@ -151,7 +151,7 @@
             this.$router.push('/welcome');
           }
           else {
-            this.$router.push({ name: 'Home' });
+            this.$router.push({ name: 'Home' })
           }
         }
         catch (e) {
