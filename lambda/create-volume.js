@@ -1,4 +1,4 @@
-const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBClient, PutItemCommand, UpdateItemCommand } = require("@aws-sdk/client-dynamodb");
 const { marshall } = require("@aws-sdk/util-dynamodb");
 const client = new DynamoDBClient({ region: "ap-northeast-1" });
 const TableName = "team2_user";
@@ -24,17 +24,26 @@ exports.handler = async (event, context) => {
     return response;
   }
 
-  const { userId, volume} = body;
+  const { userId, volume } = body;
   const param = {
     // ↓プロパティ名と変数名が同一の場合は、値の指定を省略できる。
     TableName, 
-    Item: marshall({
-        userId,
-        volume
-    })
+    Key: marshall({
+      userId,
+    }),
+    ExpressionAttributeNames: {
+      "#volume": "volume",
+    },
+    ExpressionAttributeValues: {
+      ":volume": volume,
+    },
+    UpdateExpression: "SET #volume = :volume",
+
   };
   
-  const command = new PutItemCommand(param);
+  param.ExpressionAttributeValues = marshall(param.ExpressionAttributeValues)
+  
+  const command = new UpdateItemCommand(param);
 
   try {
     await client.send(command);
