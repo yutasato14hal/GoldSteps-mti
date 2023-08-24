@@ -21,7 +21,7 @@
           <div class="field">
             <div class="ui left icon input">
               <i class="user icon"></i>
-              <input v-model="user.name" type="text" placeholder="名前"/>
+              <input v-model="user.userId" type="text" placeholder="ユーザー名"/>
             </div>
           </div>
 
@@ -66,6 +66,7 @@
       return {
         isLogin: true,
         user: {
+        userId: null,
         password: null,
         age: null
       },
@@ -79,10 +80,10 @@
 
       // 発展課題のボタン活性/非活性用
       isButtonDisabled() {
-      const { name, password, age } = this.user;
+      const { userId, password, age } = this.user;
       return this.isLogin
-          ? !name || !password
-          : !name || !password || !age;
+          ? !userId || !password
+          : !userId || !password || !age;
     },
 
       submitBtnText() {
@@ -114,10 +115,11 @@
         this.isCallingApi = true;
 
         const path = this.isLogin ? '/user/login' : '/user/signup';
-        const { name, password, age } = this.user;
+        const { userId, password, age } = this.user;
         const reqBody = this.isLogin
-        ? { name, password }
-        : { name, password, age };
+        ? { userId, password }
+        : { userId, password, age };
+        console.log(userId,password);
         try {
            /* global fetch */
           const res = await fetch(baseUrl + path,{
