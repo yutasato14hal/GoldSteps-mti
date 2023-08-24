@@ -5,13 +5,13 @@
         <h1 class="ui header">運動のレベル分け</h1>
         <p class="ui large text">自分の運動強度を選んでください！</p>
         <div class="ui divider"></div>
-        <select v-model="selectedLevel" id="select" class="ui fluid dropdown huge  large">
+        <select v-model="selectedVolume" id="select" class="ui fluid dropdown huge  large">
           <option disabled value="null">選択してください</option> <!-- 追加 -->
           <option value="松">松(初級)</option>
           <option value="竹">竹(中級)</option>
           <option value="梅">梅(上級)</option>
         </select>
-        <button @click="registerLevelToDB" class="ui button  huge fluid large blue">登録</button>
+        <button @click="registerVolumeToDB" class="ui button  huge fluid large blue">登録</button>
       </div>
     </div>
   </div>
@@ -23,21 +23,21 @@
     name: 'Welcome',
     data() {
       return {
-        selectedLevel: null // 初期値として設定
+        selectedVolume: null, // 初期値として設定
+        userId : null
       };
     },
     methods: {
-      async registerLevelToDB() {
-        
-        
-        const headers = { 'Authorization': 'mtiToken',
-  'Access-Control-Allow-Origin': "*" };
+
+      async registerVolumeToDB() {
+        const headers = { 'Authorization': 'mtiToken' };
         const requestBody = {
-          level: this.selectedLevel
+          volume: this.selectedVolume,
+          userId: window.localStorage.getItem("userId"),
         };
 
         try {
-          const res = await fetch(baseUrl + '/registerLevel', {
+          const res = await fetch(baseUrl + '/user/registerLevel', {
             method: 'PUT',
             body: JSON.stringify(requestBody),
             headers
@@ -52,7 +52,7 @@
           }
 
           alert("あなたの運動強度が登録されました。");
-
+          this.$router.push({ name: 'Home' })
         }
         catch (e) {
           alert("エラーが発生しました。松竹梅のいずれかを選択してください。")
