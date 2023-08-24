@@ -17,32 +17,25 @@
         </p>
 
         <!-- submitイベントを拾って、preventにて規定のアクションを中止し、submitメソッドを呼び出す。-->
-        <form class="ui large form" @submit.prevent="submit">
+        <form class="ui large form" @submit.prevent="submit" >
           <div class="field">
             <div class="ui left icon input">
               <i class="user icon"></i>
-              <input v-model="user.userId" type="text" placeholder="ID" />
+              <input v-model="user.name" type="text" placeholder="名前"/>
             </div>
           </div>
 
           <div class="field">
             <div class="ui left icon input">
               <i class="lock icon"></i>
-              <input v-model="user.password" type="password" placeholder="Password" />
-            </div>
-          </div>
-
-          <div class="field" v-if="!isLogin">
-            <div class="ui left icon input">
-              <i class="tag icon"></i>
-              <input v-model="user.nickname" type="text" placeholder="Nickname" />
+              <input v-model="user.password" type="password" placeholder="パスワード"/>
             </div>
           </div>
 
           <div class="field" v-if="!isLogin">
             <div class="ui left icon input">
               <i class="calendar icon"></i>
-              <input v-model.number="user.age" type="number" min="0" placeholder="Age" />
+              <input v-model.number="user.age" type="number" min="0" placeholder="年齢"/>
             </div>
           </div>
 
@@ -73,11 +66,9 @@
       return {
         isLogin: true,
         user: {
-          userId: null,
-          password: null,
-          nickname: null,
-          age: null
-        },
+        password: null,
+        age: null
+      },
         errorMsg: '', // 発展課題のエラーメッセージ用
         isCallingApi: false // 発展課題のローディング表示用
       };
@@ -88,11 +79,11 @@
 
       // 発展課題のボタン活性/非活性用
       isButtonDisabled() {
-        const { userId, password, nickname, age } = this.user;
-        return this.isLogin ?
-          !userId || !password :
-          !userId || !password || !nickname || !age;
-      },
+      const { name, password, age } = this.user;
+      return this.isLogin
+          ? !name || !password
+          : !name || !password || !age;
+    },
 
       submitBtnText() {
         return this.isLogin ? 'ログイン' : '新規登録'
@@ -123,13 +114,13 @@
         this.isCallingApi = true;
 
         const path = this.isLogin ? '/user/login' : '/user/signup';
-        const { userId, password, nickname, age } = this.user;
-        const reqBody = this.isLogin ?
-          { userId, password } :
-          { userId, password, nickname, age };
-
+        const { name, password, age } = this.user;
+        const reqBody = this.isLogin
+        ? { name, password }
+        : { name, password, age };
         try {
-          const res = await fetch(baseUr + path, {
+           /* global fetch */
+          const res = await fetch(baseUrl + path,{
             method: 'POST',
             body: JSON.stringify(reqBody)
           });
