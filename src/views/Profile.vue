@@ -8,7 +8,7 @@
     <!-- Error Message -->
     <div class="ui red message" v-if="errorMsg">
       <p>{{ errorMsg }}</p>
-    </div>
+    </div> 
     <!-- User Status -->
     <div class="ui segment">
       <h3>User Status</h3>
