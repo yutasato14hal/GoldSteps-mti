@@ -1,6 +1,7 @@
 const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
 const { marshall } = require("@aws-sdk/util-dynamodb");
 const client = new DynamoDBClient({ region: "ap-northeast-1" });
+const crypto = require('crypto');
 const TableName = "team2_user";
 
 /*** 通常版の解答例(発展課題を含む最終版は下にあります。) ***/
@@ -45,7 +46,7 @@ const TableName = "team2_user";
 //   return response;
 // };
 
-/*** 発展課題も含む最終版 ***/
+
 exports.handler = async (event, context) => {
   const response = {
     statusCode: 200,
@@ -56,7 +57,7 @@ exports.handler = async (event, context) => {
   };
 
   const body = event.body ? JSON.parse(event.body) : null;
-  if (!body || !body.userId || !body.age || !body.password) {
+  if (!body || !body.name || !body.age || !body.password) {
     response.statusCode = 400;
     response.body = JSON.stringify({
       message:
@@ -65,18 +66,19 @@ exports.handler = async (event, context) => {
 
     return response;
   }
-
-  // { varName }のような形式を分割代入と呼び、右側のオブジェクトの中からvarNameプロパティを変数varNameとして切り出すことができる
-  // (https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)
-  const { userId, age, password } = body;
+  
+  // UUID生成
+  const userId = crypto.randomUUID();
+  const { name, age, password } = body;
   const param = {
-    // ↓プロパティ名と変数名が同一の場合は、値の指定を省略できる。
-    TableName, // TableName: TableNameと同じ意味
+    TableName,
     Item: marshall({
-      userId, // userId: userIdと同じ意味
-      age, // age: ageと同じ意味
-      "exp":0, // nickname: nicknameと同じ意味
-      password, // password: passwordと同じ意味
+      userId, 
+      name,
+      age,
+      password, 
+      "exp":0, 
+      "level":0,
     }),
   };
 
