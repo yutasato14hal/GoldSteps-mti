@@ -28,6 +28,8 @@
     },
     methods: {
       async registerLevelToDB() {
+        
+        
         const headers = { 'Authorization': 'mtiToken',
   'Access-Control-Allow-Origin': "*" };
         const requestBody = {

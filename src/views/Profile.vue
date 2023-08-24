@@ -168,6 +168,8 @@
       const jsonData = text ? JSON.parse(text) : {};
 
       if (!res.ok) {
+        
+        
         const errorMessage = jsonData.message ?? 'Settings update failed';
         throw new Error(errorMessage);
       }
