@@ -1,9 +1,7 @@
-
 const { DynamoDBClient, UpdateItemCommand } = require("@aws-sdk/client-dynamodb");
 const { marshall } = require("@aws-sdk/util-dynamodb");
 const client = new DynamoDBClient({ region: "ap-northeast-1" });
 const TableName = "team2_user";
-
 
 
 exports.handler = async (event, context) => {
@@ -23,14 +21,12 @@ exports.handler = async (event, context) => {
       message: "認証されていません。HeaderにTokenを指定してください",
     });
 
-
     return response;
   }
 
   const body = event.body ? JSON.parse(event.body) : null;
 
-  if (!body || !body.password || !body.volume) {
-
+  if (!body || !body.password || !body.volume || !body.name) {
     response.statusCode = 400;
     response.body = JSON.stringify({
       message:
@@ -44,7 +40,7 @@ exports.handler = async (event, context) => {
   // (https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)
 
   const userId = event.queryStringParameters.userId;
-  const { password, volume } = body;
+  const { name, password, volume } = body;
   const param = {
     // ↓プロパティ名と変数名が同一の場合は、値の指定を省略できる。
       TableName, // TableName: TableNameと同じ意味
@@ -52,22 +48,24 @@ exports.handler = async (event, context) => {
         userId,
       }),
       ExpressionAttributeNames: {
+      "#name": "name",
       "#volume": "volume",
       "#password": "password"
       },
       ExpressionAttributeValues: {
+        ":name": name,
         ":password": password,
         ":volume": volume,
       },
-      UpdateExpression: "SET #password = :password, #volume = :volume",
+      UpdateExpression: "SET #name = :name, #password = :password, #volume = :volume",
     };
 
-  param.ExpressionAttributeValues = marshall(param.ExpressionAttributeValues)
-  const command = new UpdateItemCommand(param)
+  param.ExpressionAttributeValues = marshall(param.ExpressionAttributeValues);
+  const command = new UpdateItemCommand(param);
 
   try {
     await client.send(command);
-    response.body = JSON.stringify({ userId, volume });
+    response.body = JSON.stringify({ name,  volume });
 
   } catch (e) {
     response.statusCode = 500;
