@@ -15,7 +15,7 @@
     <p><strong>UserId: </strong>{{ user.userId }}</p>
     <p><strong>Volume: </strong>{{ user.volume }}</p>
     <p><strong>Experience: </strong>{{ user.exp }}</p>
-    </div>
+    </div> 
 
      <!-- Upgrade to Paid Plan -->
     <div class="ui segment">
