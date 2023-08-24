@@ -17,32 +17,32 @@
         </p>
 
         <!-- submitイベントを拾って、preventにて規定のアクションを中止し、submitメソッドを呼び出す。-->
-        <form class="ui large form" @submit.prevent="submit" >
+        <form class="ui large form" @submit.prevent="submit">
           <div class="field">
             <div class="ui left icon input">
               <i class="user icon"></i>
-              <input v-model="user.userId" type="text" placeholder="ID"/>
+              <input v-model="user.userId" type="text" placeholder="ID" />
             </div>
           </div>
 
           <div class="field">
             <div class="ui left icon input">
               <i class="lock icon"></i>
-              <input v-model="user.password" type="password" placeholder="Password"/>
+              <input v-model="user.password" type="password" placeholder="Password" />
             </div>
           </div>
 
           <div class="field" v-if="!isLogin">
             <div class="ui left icon input">
               <i class="tag icon"></i>
-              <input v-model="user.nickname" type="text" placeholder="Nickname"/>
+              <input v-model="user.nickname" type="text" placeholder="Nickname" />
             </div>
           </div>
 
           <div class="field" v-if="!isLogin">
             <div class="ui left icon input">
               <i class="calendar icon"></i>
-              <input v-model.number="user.age" type="number" min="0" placeholder="Age"/>
+              <input v-model.number="user.age" type="number" min="0" placeholder="Age" />
             </div>
           </div>
 
@@ -56,110 +56,117 @@
 </template>
 
 <script>
-// 必要なものはここでインポートする
-// @は/srcの同じ意味です
-// import something from '@/components/something.vue';
-import { baseUrl } from '@/assets/config.js';
+  // 必要なものはここでインポートする
+  // @は/srcの同じ意味です
+  // import something from '@/components/something.vue';
+  import { baseUrl } from '@/assets/config.js';
 
-export default {
-  name: 'Login',
+  export default {
+    name: 'Login',
 
-  components: {
-    // 読み込んだコンポーネント名をここに記述する
-  },
+    components: {
+      // 読み込んだコンポーネント名をここに記述する
+    },
 
-  data() {
-    // Vue.jsで使う変数はここに記述する
-    return {
-      isLogin: true,
-      user: {
-        userId: null,
-        password: null,
-        nickname: null,
-        age: null
+    data() {
+      // Vue.jsで使う変数はここに記述する
+      return {
+        isLogin: true,
+        user: {
+          userId: null,
+          password: null,
+          nickname: null,
+          age: null
+        },
+        errorMsg: '', // 発展課題のエラーメッセージ用
+        isCallingApi: false // 発展課題のローディング表示用
+      };
+    },
+
+    computed: {
+      // 計算した結果を変数として利用したいときはここに記述する
+
+      // 発展課題のボタン活性/非活性用
+      isButtonDisabled() {
+        const { userId, password, nickname, age } = this.user;
+        return this.isLogin ?
+          !userId || !password :
+          !userId || !password || !nickname || !age;
       },
-      errorMsg: '', // 発展課題のエラーメッセージ用
-      isCallingApi: false // 発展課題のローディング表示用
-    };
-  },
 
-  computed: {
-    // 計算した結果を変数として利用したいときはここに記述する
+      submitBtnText() {
+        return this.isLogin ? 'ログイン' : '新規登録'
+      },
 
-    // 発展課題のボタン活性/非活性用
-    isButtonDisabled() {
-      const { userId, password, nickname, age } = this.user;
-      return this.isLogin
-          ? !userId || !password
-          : !userId || !password || !nickname || !age;
-    },
-
-    submitBtnText() {
-      return this.isLogin ? 'ログイン':'新規登録'
-    },
-
-    toggledBtnText() {
-      return this.isLogin ? '新規登録':'ログイン'
-    }
-  },
-
-
-  methods: {
-    // Vue.jsで使う関数はここで記述する
-
-    // 発展課題のエラーメッセージ用
-    clearError() {
-      this.errorMsg = ''
-    },
-
-    toggleMode() {
-      this.isLogin = !this.isLogin;
-    },
-
-    async submit() {
-      if (this.isCallingApi) {
-        return;
+      toggledBtnText() {
+        return this.isLogin ? '新規登録' : 'ログイン'
       }
-      this.isCallingApi = true;
+    },
 
-      const path = this.isLogin? '/user/login' : '/user/signup';
-      const { userId, password, nickname, age } = this.user;
-      const reqBody = this.isLogin
-        ? { userId, password }
-        : { userId, password, nickname, age };
 
-      try {
-        /* global fetch */
-        const res = await fetch(baseUrl + path,
-        {
-          method: 'POST',
-          body: JSON.stringify(reqBody)
-        });
+    methods: {
+      // Vue.jsで使う関数はここで記述する
 
-        const text = await res.text();
-        const jsonData = text ? JSON.parse(text) : {}
+      // 発展課題のエラーメッセージ用
+      clearError() {
+        this.errorMsg = ''
+      },
 
-        // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
-        if (!res.ok) {
-          const errorMessage = jsonData.message ?? 'エラーメッセージがありません';
-          throw new Error(errorMessage);
+      toggleMode() {
+        this.isLogin = !this.isLogin;
+      },
+
+      async submit() {
+        if (this.isCallingApi) {
+          return;
         }
+        this.isCallingApi = true;
 
-        window.localStorage.setItem('token', jsonData.token);
-        window.localStorage.setItem('userId', this.user.userId);
+        const path = this.isLogin ? '/user/login' : '/user/signup';
+        const { userId, password, nickname, age } = this.user;
+        const reqBody = this.isLogin ?
+          { userId, password } :
+          { userId, password, nickname, age };
 
-        this.$router.push({ name: 'Home' });
-      } catch (e) {
-        console.error(e);
-        this.errorMsg = e;
-      } finally {
-        this.isCallingApi = false;
+        try {
+          const res = await fetch(baseUr + path, {
+            method: 'POST',
+            body: JSON.stringify(reqBody)
+          });
+
+          const text = await res.text();
+          const jsonData = text ? JSON.parse(text) : {}
+
+          if (!res.ok) {
+            const errorMessage = jsonData.message ?? 'エラーメッセージがありません';
+            throw new Error(errorMessage);
+          }
+
+          // トークンやユーザーIDを保存
+          window.localStorage.setItem('token', jsonData.token);
+          window.localStorage.setItem('userId', this.user.userId);
+
+          // 新規登録の場合に限り、/welcome へ遷移する
+          if (!this.isLogin) {
+            this.$router.push('/welcome');
+          }
+          else {
+            this.$router.push({ name: 'Home' })
+          }
+        }
+        catch (e) {
+          console.error(e);
+          this.errorMsg = e;
+        }
+        finally {
+          this.isCallingApi = false;
+        }
       }
-    }
-  },
-}
+
+    },
+  }
 </script>
 
 <style scoped>
-/* このコンポーネントだけに適用するCSSはここに記述する */
+  /* このコンポーネントだけに適用するCSSはここに記述する */
 </style>
