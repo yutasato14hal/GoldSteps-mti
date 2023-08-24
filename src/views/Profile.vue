@@ -1,216 +1,195 @@
 <template>
-  <div>
-    <div class="ui main container">
+  <div class="ui main container">
+    <!-- Loading Spinner -->
+    <div class="ui active inverted dimmer" v-if="isCallingApi">
+      <div class="ui text loader">Loading</div>
+    </div>
 
-      <!-- 発展課題のローディング表示用 -->
-      <div class="ui active inverted page dimmer" v-if="isCallingApi">
-        <div class="ui text loader">Loading</div>
-      </div>
+    <!-- Error Message -->
+    <div class="ui red message" v-if="errorMsg">
+      <p>{{ errorMsg }}</p>
+    </div>
 
-      <div class="ui segment">
-        <!-- 発展課題のエラーメッセージ用-->
-        <p class="ui negative message" v-if="errorMsg">
-          <i class="close icon" @click="clearMsg('error')"></i>
-          <span class="header">エラーが発生しました！</span>
-          {{ errorMsg }}
-        </p>
+    <!-- User Status -->
+    <div class="ui segment">
+      <h3>User Status</h3>
+      <p><strong>UserId: </strong>{{ user.userId }}</p>
+      <p><strong>Volume: </strong>{{ user.volume }}</p>
+      <p><strong>Experience: </strong>{{ user.exp }}</p>
+    </div>
 
-        <!-- 発展課題の成功メッセージ用-->
-        <p class="ui positive message" v-if="successMsg">
-          <i class="close icon" @click="clearMsg"></i>
-          <span class="header">完了しました！</span>
-          {{ successMsg }}
-        </p>
+    <!-- Upgrade to Paid Plan -->
+    <div class="ui segment">
+      <h3>Upgrade to Paid Plan</h3>
+      <form class="ui form" @submit.prevent="upgradePlan">
+        <div class="field">
+          <label>Plan</label>
+          <select v-model="user.plan">
+            <option value="free">Free</option>
+            <option value="premium">Premium</option>
+          </select>
+        </div>
+        <button class="ui button green" type="submit">Upgrade</button>
+      </form>
+    </div>
 
-        <!-- 更新情報入力用フォーム -->
-        <form class="ui large form" @submit.prevent="submit" >
-          <div class="field">
-            <div class="ui left icon input">
-              <i class="user icon"></i>
-              <input v-model="user.userId" type="text" placeholder="ID" required disabled/>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="ui left icon input">
-              <i class="lock icon"></i>
-              <input v-model="user.password" type="password" placeholder="Password"/>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="ui left icon input">
-              <i class="tag icon"></i>
-              <input v-model="user.nickname" type="text" placeholder="Nickname"/>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="ui left icon input">
-              <i class="calendar icon"></i>
-              <input v-model.number="user.age" type="number" min="0"  placeholder="Age"/>
-            </div>
-          </div>
-
-          <button class="ui huge green fluid button" v-bind:disabled="isButtonDisabled" type="submit">更新</button>
-        </form>
-      </div>
-      <button @click="deleteUser" class="ui huge grey fluid button" type="submit">退会</button>
+    <!-- Edit Settings -->
+    <div class="ui segment">
+      <h3>Edit Settings</h3>
+      <form class="ui form" @submit.prevent="updateSettings">
+        <div class="field">
+          <label>Username</label>
+          <input type="text" v-model="user.username" />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" v-model="user.password" />
+        </div>
+        <div class="field">
+          <label>Strength</label>
+          <select v-model="user.strength">
+            <option disabled value="null">選択してください</option> <!-- 追加 -->
+            <option value="松">松</option>
+            <option value="竹">竹</option>
+            <option value="梅">梅</option>
+          </select>
+        </div>
+        <button class="ui button blue" type="submit">Update</button>
+      </form>
     </div>
   </div>
 </template>
 
 <script>
-// 必要なものはここでインポートする
-// @は/srcの同じ意味です
-// import something from '@/components/something.vue';
-import { baseUrl } from '@/assets/config.js';
+  import { baseUrl } from '@/assets/config.js';
 
-const headers = {'Authorization': 'mtiToken'};
+  const headers = {
+    'Authorization': 'mtiToken',
+    'Access-Control-Allow-Origin': "*"
+  };
 
-export default {
-  name: 'Profile',
-
-  components: {
-    // 読み込んだコンポーネント名をここに記述する
-  },
-
-  data() {
-    // Vue.jsで使う変数はここに記述する
-    return {
-      user: {
-        userId: window.localStorage.userId,
-        password: null,
-        nickname: null,
-        age: null
-      },
-      errorMsg: '', // 発展課題のエラーメッセージ用
-      successMsg: '', //発展課題の成功メッセージ用
-      isCallingApi: false // 発展課題のローディング表示用
-    };
-  },
-
-  computed: {
-    // 計算した結果を変数として利用したいときはここに記述する
-    isButtonDisabled() {
-      const { userId, password, nickname, age } = this.user;
-      return !userId || !password || !nickname || !age;
-    },
-  },
-
-  methods: {
-    // Vue.jsで使う関数はここで記述する
-    // 発展課題のエラー・成功メッセージ用
-    clearMsg(target) {
-      if (target === 'error') {
-        this.errorMsg = '';
-      } else {
-        this.successMsg = '';
-      }
-    },
-
-    async submit() {
-      if (this.isCallingApi) {
-        return;
-      }
-      this.isCallingApi = true;
-
-      const { userId, password, nickname, age } = this.user;
-      const reqBody = {
-        userId,
-        password,
-        nickname,
-        age
+  export default {
+    name: 'Profile',
+    data() {
+      return {
+        user: {
+          userId: null,
+          volume: '',
+          exp: '',
+          plan: 'free'
+        },
+        errorMsg: '',
+        isCallingApi: false
       };
-
-      try {
-        /* global fetch */
-        const res = await fetch(baseUrl + '/user', {
-          method: 'PUT',
-          body: JSON.stringify(reqBody),
-          headers
-        });
-
-        const text = await res.text();
-        const jsonData = text ? JSON.parse(text) : {}
-
-        // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
-        if (!res.ok) {
-          const errorMessage = jsonData.message ?? 'エラーメッセージがありません';
-          throw new Error(errorMessage);
-        }
-
-        this.successMsg = 'ユーザー更新処理が完了しました'
-      } catch (e){
-        this.errorMsg = `ユーザー更新時にエラーが発生しました: ${e}`;
-      } finally {
-        this.isCallingApi = false;
-      }
     },
-
-    async deleteUser() {
-      if (this.isCallingApi) {
-        return;
-      }
+    methods: {
+      clearError() {
+        this.errorMsg = ''
+      },
+      // Other methods (Upgrade, Settings Update)
+      // (snip)
+    },
+    async created() {
       this.isCallingApi = true;
 
       try {
-        /* global fetch */
-        const res = await fetch(`${baseUrl}/user?userId=${this.user.userId}`,{
-          method: 'DELETE',
+        const userId = window.localStorage.userId; // userIdを設定。
+        const res = await fetch(`${baseUrl}/user?userId=${userId}`, {
+          method: 'GET',
           headers
         });
 
         const text = await res.text();
-        const jsonData = text ? JSON.parse(text) : {}
+        const jsonData = text ? JSON.parse(text) : {};
 
-        // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
         if (!res.ok) {
           const errorMessage = jsonData.message ?? 'エラーメッセージがありません';
           throw new Error(errorMessage);
         }
 
-        // アカウント自体が消えるので、ログイン情報も破棄する
-        window.localStorage.clear();
-        this.$router.push({name: 'Login'});
-      } catch (e){
-        this.errorMsg = `ユーザー削除時にエラーが発生しました: ${e}`;
-      } finally {
+        this.user = {
+          userId: jsonData.userId ?? '',
+          volume: jsonData.volume ?? '',
+          exp: jsonData.exp ?? '',
+          plan: jsonData.plan ?? 'free'
+        };
+      }
+      catch (e) {
+        this.errorMsg = `ユーザーステータス取得時にエラーが発生しました: ${e}`;
+      }
+      finally {
         this.isCallingApi = false;
       }
-    }
+    },
+     clearError() {
+    this.errorMsg = '';
   },
+  // async upgradePlan() {
+  //   this.isCallingApi = true;
+  //   try {
+  //     const res = await fetch(baseUrl +'/user', {
+  //       method: 'PUT',
+  //       headers: {
+  //         ...headers,
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({ userId: this.user.userId, plan: this.user.plan })
+  //     });
 
-  created: async function() {
+  //     const text = await res.text();
+  //     const jsonData = text ? JSON.parse(text) : {};
+
+  //     if (!res.ok) {
+  //       const errorMessage = jsonData.message ?? 'Plan upgrade failed';
+  //       throw new Error(errorMessage);
+  //     }
+
+  //     // ここで何か成功時の処理を書く（例：メッセージ表示など）
+
+  //   } catch (e) {
+  //     this.errorMsg = `Plan upgrade failed: ${e}`;
+  //   } finally {
+  //     this.isCallingApi = false;
+  //   }
+  // },
+  async updateSettings() {
     this.isCallingApi = true;
-
     try {
-      /* global fetch */
-      const res = await fetch(baseUrl + `/user?userId=${this.user.userId}`,  {
-        method: 'GET',
-        headers
+      const res = await fetch(baseUrl + '/user', {
+        method: 'PUT',
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.user)
       });
 
       const text = await res.text();
-      const jsonData = text ? JSON.parse(text) : {}
+      const jsonData = text ? JSON.parse(text) : {};
 
-      // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
       if (!res.ok) {
-        const errorMessage = jsonData.message ?? 'エラーメッセージがありません';
+        
+        
+        const errorMessage = jsonData.message ?? 'Settings update failed';
         throw new Error(errorMessage);
       }
 
-      this.user.nickname = jsonData.nickname;
-      this.user.age = jsonData.age;
+      // ここで何か成功時の処理を書く（例：メッセージ表示など）
+
     } catch (e) {
-      this.errorMsg = `ユーザー情報取得時にエラーが発生しました: ${e}`;
+      this.errorMsg = `Settings update failed: ${e}`;
     } finally {
       this.isCallingApi = false;
     }
-  }
+  },
+  // ...その他のメソッド
 }
+
+
 </script>
 
 <style scoped>
-/* このコンポーネントだけに適用するCSSはここに記述する */
+  .ui.main.container {
+    margin-top: 20px;
+  }
 </style>

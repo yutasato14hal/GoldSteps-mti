@@ -28,6 +28,7 @@
       };
     },
     methods: {
+
       async registerVolumeToDB() {
         const headers = { 'Authorization': 'mtiToken' };
         const requestBody = {
