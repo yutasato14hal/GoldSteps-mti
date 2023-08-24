@@ -3,10 +3,19 @@ import Home from '../views/Home.vue';
 import Login from '../views/Login.vue';
 import Profile from '../views/Profile.vue';
 import User from '../views/User.vue';
+import Welcome from '../views/Welcome.vue'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/welcome',
+      name: 'Welcome',
+      component: Welcome,
+      meta: {
+        title: 'Welcome'
+      }
+    },
     {
       path: '/',
       name: 'Home',
