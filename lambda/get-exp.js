@@ -1,4 +1,4 @@
-const { DynamoDBClient, PutItemCommand,QueryCommand } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBClient, PutItemCommand, GetItemCommand } = require("@aws-sdk/client-dynamodb");
 const { marshall,unmarshall } = require("@aws-sdk/util-dynamodb");
 const client = new DynamoDBClient({ region: "ap-northeast-1" });
 const TableName = "team2_user";
@@ -15,7 +15,7 @@ exports.handler = async (event, context) => {
   
   
   // 今回は簡易的な実装だが、一般的にはAuthorizationHeaderの値は、Authorization: <type> <credentials>のような形式になります。
-  https://developer.mozilla.org/ja/docs/Web/HTTP/Headers/Authorization#%E6%A7%8B%E6%96%87
+  // https://developer.mozilla.org/ja/docs/Web/HTTP/Headers/Authorization#%E6%A7%8B%E6%96%87
   if (event.headers.authorization !== "mtiToken") {
     response.statusCode = 401;
     response.body = JSON.stringify({
@@ -25,42 +25,33 @@ exports.handler = async (event, context) => {
     return response;
   }
 
-//   const body = event.body ? JSON.parse(event.body) : null;
-//   if (!body || !body.userId || !body.age || !body.nickname || !body.password) {
-//     response.statusCode = 400;
-//     response.body = JSON.stringify({
-//       message:
-//         "無効なリクエストです。request bodyに必須パラメータがセットされていません。",
-//     });
+  const body = event.body ? JSON.parse(event.body) : null;
+  if (!body || !body.userId || !body.exp) {
+    response.statusCode = 400;
+    response.body = JSON.stringify({
+      message:
+        "無効なリクエストです。request bodyに必須パラメータがセットされていません。",
+    });
 
-//     return response;
-//   }
+    return response;
+  }
 
-  // { varName }のような形式を分割代入と呼び、右側のオブジェクトの中からvarNameプロパティを変数varNameとして切り出すことができる
-  // (https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)
- const { userId,exp } = JSON.parse(event.body);
+  const { userId,exp } = JSON.parse(event.body);
  
  
- const queryParam = {
-      TableName,
-      ExpressionAttributeNames:{
-          '#u': 'userId',
-      },
-      ExpressionAttributeValues:{
-          ':userId': userId,
-      },
-      KeyConditionExpression: '#u = :userId'
+ const getParam = {
+    TableName,
+    Key: marshall({
+      userId,
+    }),
  };
-    
-    queryParam.ExpressionAttributeValues = marshall(queryParam.ExpressionAttributeValues);
- 
 
   // 指定したアイテムを取得するコマンドを用意
-  const queryCommand = new QueryCommand(queryParam);
+  const getCommand = new GetItemCommand(getParam);
 
   try {
-    const user = (await client.send(queryCommand)).Items;
-    const unmarshallUser = unmarshall(user[0]);
+    const user = (await client.send(getCommand)).Item;
+    const unmarshallUser = unmarshall(user);
     const newExp = Number(exp) + Number(unmarshallUser.exp);
     const putParam = {
         TableName,
