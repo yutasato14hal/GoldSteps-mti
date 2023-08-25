@@ -5,14 +5,10 @@
       <div class="ui text loader">Loading</div>
     </div>
 
- 
-
     <!-- Error Message -->
     <div class="ui red message" v-if="errorMsg">
       <p>{{ errorMsg }}</p>
     </div>
-
- 
 
     <!-- User Status -->
     <div class="ui segment">
@@ -21,8 +17,6 @@
       <p><strong>運動強度（松竹梅）: </strong>{{ user.volume }}</p>
       <p><strong>経験値：</strong>{{ user.exp }}</p>
     </div>
-
- 
 
     <!-- Upgrade to Paid Plan -->
     <div class="ui segment">
@@ -39,19 +33,21 @@
       </form>
     </div>
 
- 
-
     <!-- Edit Settings -->
     <div class="ui segment">
       <h3>ユーザー情報の編集</h3>
       <form class="ui form" @submit.prevent="updateSettings">
+        <div class="field">
+          <label>ユーザー名</label>
+          <input type="text" v-model="user.username" />
+        </div>
         <div class="field">
           <label>パスワード</label>
           <input type="password" v-model="user.password" />
         </div>
         <div class="field">
           <label>運動強度（松竹梅）</label>
-          <select v-model="user.volume">
+          <select v-model="user.strength">
             <option disabled value="null">選択してください</option> <!-- 追加 -->
             <option value="matu">松</option>
             <option value="take">竹</option>
@@ -78,9 +74,12 @@
       return {
         user: {
           userId: null,
+          password: null,
           volume: '',
           exp: '',
-          plan: 'free'
+          plan: 'free',
+          strength: null, // この行を追加
+          username: '' // usernameも初期化（もし必要なら）
         },
         errorMsg: '',
         isCallingApi: false
@@ -92,80 +91,8 @@
       },
       // Other methods (Upgrade, Settings Update)
       // (snip)
-    
-     clearError() {
-    this.errorMsg = '';
-  },
-  // async upgradePlan() {
-  //   this.isCallingApi = true;
-  //   try {
-  //     const res = await fetch(baseUrl +'/user', {
-  //       method: 'PUT',
-  //       headers: {
-  //         ...headers,
-  //         'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify({ userId: this.user.userId, plan: this.user.plan })
-  //     });
-
-  //     const text = await res.text();
-  //     const jsonData = text ? JSON.parse(text) : {};
-
-  //     if (!res.ok) {
-  //       const errorMessage = jsonData.message ?? 'Plan upgrade failed';
-  //       throw new Error(errorMessage);
-  //     }
-
-  //     // ここで何か成功時の処理を書く（例：メッセージ表示など）
-
-  //   } catch (e) {
-  //     this.errorMsg = `Plan upgrade failed: ${e}`;
-  //   } finally {
-  //     this.isCallingApi = false;
-  //   }
-  // },
-  async updateSettings() {
-    console.log("update")
-    this.isCallingApi = true;
-    try {
-      const userId = window.localStorage.userId;
-      const { password, volume } = this.user;
-      const reqBody = {
-        userId,
-        password,
-        volume,
-      };
-      
-      const res = await fetch(baseUrl + '/user', {
-        method: 'PUT',
-        headers: {
-          ...headers,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(reqBody)
-      });
-
-      const text = await res.text();
-      const jsonData = text ? JSON.parse(text) : {};
-
-      if (!res.ok) {
-        
-        
-        const errorMessage = jsonData.message ?? 'Settings update failed';
-        throw new Error(errorMessage);
-      }
-
-      // ここで何か成功時の処理を書く（例：メッセージ表示など）
-
-    } catch (e) {
-      this.errorMsg = `Settings update failed: ${e}`;
-    } finally {
-      this.isCallingApi = false;
-    }
-  },
-  // ...その他のメソッド
-  },
-  created: async function() {
+    },
+    async created() {
       this.isCallingApi = true;
 
       try {
@@ -197,9 +124,48 @@
         this.isCallingApi = false;
       }
     },
-}
+    clearError() {
+      this.errorMsg = '';
+    },
+    async updateSettings() {
+      this.isCallingApi = true
+      const requestBody = { 
+        userId: this.user.userId,
+        password:this.user.password,
+          volume: this.user.volume,
+         
+        };
+      try {
+        const res = await fetch(baseUrl + '/user', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(requestBody)
+        });
+
+        const text = await res.text();
+        const jsonData = text ? JSON.parse(text) : {};
+
+        if (!res.ok) {
 
 
+          const errorMessage = jsonData.message ?? 'Settings update failed';
+          throw new Error(errorMessage);
+        }
+
+        // ここで何か成功時の処理を書く（例：メッセージ表示など）
+
+      }
+      catch (e) {
+        this.errorMsg = `Settings update failed: ${e}`;
+      }
+      finally {
+        this.isCallingApi = false;
+      }
+    },
+    
+    // ...その他のメソッド
+  }
+  
 </script>
 
 <style scoped>
