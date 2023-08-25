@@ -163,16 +163,16 @@ export default {
     // apiからarticleを取得する
     
     
-    // if (
+    if (
 
-    //   window.localStorage.getItem("token")
-    // ) {
-    //   this.iam = window.localStorage.getItem("userId");
-    //await this.getArticles();
-    // } else {
-    //   window.localStorage.clear();
-    //   this.$router.push({ name: "Login" });
-    // }
+      window.localStorage.getItem("token")
+    ) {
+      this.iam = window.localStorage.getItem("userId");
+    await this.getArticles();
+    } else {
+      window.localStorage.clear();
+      this.$router.push({ name: "Login" });
+    }
     await this.getUser();
     await this.getVital();
   },
