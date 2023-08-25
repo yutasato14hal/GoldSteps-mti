@@ -30,7 +30,7 @@
             <ul>
               <li>散歩をしましょう！</li>
               <li>30分を目安に運動をしましょう！</li>
-              <li>心拍数は80を目指しましょう！</li>
+              <li>心拍数は{{goal}}を目指しましょう！</li>
             </ul>
             <hr>
             <label for="vital">運動後の心拍数（回／分）</label>
@@ -114,6 +114,7 @@ export default {
       post: {
         age: null,
         exp: null,
+        vital:null,
       },
       search: {
         userId: null,
@@ -134,10 +135,13 @@ export default {
       isCallingApi: false,
       
       user:{
-        userId:"isogami"
+        userId:"isogami",
+        age:20,
       },
       team2_users:[],
-      result:""
+      team2_goals:[],
+      result:"",
+      goal:"",
         
     };
   },
@@ -170,6 +174,7 @@ export default {
     //   this.$router.push({ name: "Login" });
     // }
     await this.getUser();
+    await this.getVital();
   },
 
   methods: {
@@ -178,15 +183,15 @@ export default {
     async checkResult() {
       
       let weight;
-      if(this.volume==="ume"){
-        weight=0.5;
+      if(this.volume==="matu"){
+        weight=0.7;
       }else if(this.volume==="take"){
         weight=0.6;
       }else{
-        weight=0.7;
+        weight=0.5;
       }
       
-      if((220-this.team2_users[0].age)*weight <= this.vital <= (220-this.team2_users[0].age)*(weight+0.1)){
+      if((220-this.team2_users[0].age)*weight <= this.vital && this.vital<= (220-this.team2_users[0].age)*(weight+0.1)){
           this.team2_users[0].exp+=100;
           this.result = "合格です！経験値を100獲得しました！";
       }else{
@@ -211,6 +216,7 @@ export default {
         const user = await res.json();
         console.log(user);
         this.team2_users=[user];
+        this.user=user;
 
         // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
         if (!res.ok) {
@@ -225,6 +231,28 @@ export default {
         this.isCallingApi = false;
       }
     },
+    //目標心拍数を求める
+    async getVital(){
+      try{
+        console.log(this.user.age);
+      
+        let weight;
+        if(this.volume==="matu"){
+          weight=0.7;
+        }else if(this.volume==="take"){
+          weight=0.6;
+        }else{
+          weight=0.5;
+        }
+        this.goal=(220-this.user.age)*weight;
+
+      } catch (e) {
+        console.error(e);
+        this.errorMsg = e;
+      } finally {
+      }
+    },
+    
     //運動の種類をランダムに表示
     async getExercise(){
       try {
@@ -401,6 +429,18 @@ export default {
           }
         );
         console.log(res)
+      } catch (e) {
+        console.error(e);
+        this.errorMsg = e;
+      } finally {
+      }
+    },
+    async changeVital(age){
+      console.log("changed")
+      try {
+        const body = JSON.stringify({
+          age,
+        })
       } catch (e) {
         console.error(e);
         this.errorMsg = e;
