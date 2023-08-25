@@ -161,14 +161,10 @@ export default {
   created: async function () {
     // Vue.jsの読み込みが完了したときに実行する処理はここに記述する
     // apiからarticleを取得する
-    
-    
     if (
-
       window.localStorage.getItem("token")
     ) {
       this.iam = window.localStorage.getItem("userId");
-    await this.getArticles();
     } else {
       window.localStorage.clear();
       this.$router.push({ name: "Login" });
@@ -297,37 +293,6 @@ export default {
       return this.iam === id;
     },
 
-    async getArticles() {
-      this.isCallingApi = true;
-
-      try {
-        /* global fetch */
-        const res = await fetch(baseUrl + "/users", {
-          method: "GET",
-          headers,
-        });
-
-        //const text = await res.text();
-        //const jsonData = age ? JSON.parse(age) : {};
-          const text = await res.text();
-          const jsonData = text ? JSON.parse(text) : {};
-          console.log(jsonData)
-          
-        // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
-        if (!res.ok) {
-          const errorMessage =
-            jsonData.message ?? "エラーメッセージがありません";
-          throw new Error(errorMessage);
-        }
-
-        // 記事がなかった場合undefinedとなり、記事追加時のunshiftでエラーとなるため、空のarrayを代入
-        this.users = jsonData.users ?? [];
-      } catch (e) {
-        this.errorMsg = `運動一覧取得時にエラーが発生しました: ${e}`;
-      } finally {
-        this.isCallingApi = false;
-      }
-    },
 
     async postArticle() {
       if (this.isCallingApi) {
