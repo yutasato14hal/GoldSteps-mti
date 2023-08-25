@@ -1,5 +1,12 @@
 <template>
   <div>
+    <div class="ui secondary pointing green inverted massive menu">
+      <!-- 基本的なコンテンツはここに記載する -->
+      <div class="ui" id="logo">
+        GoldSteps
+      </div>
+
+    </div>
     <div class="ui main container">
       <div class="ui segment" id="exercise-level-screen">
         <h1 class="ui header">運動のレベル分け</h1>
@@ -148,10 +155,22 @@
   #matu {
     color: brown;
   }
+
   #take {
     color: green;
   }
+
   #ume {
     color: red;
+  }
+   #logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: white;
+    font-weight: bold;
+    font-size: 40px;
+    margin: 0 40px 0 20px;
   }
 </style>
