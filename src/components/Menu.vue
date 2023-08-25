@@ -1,11 +1,11 @@
 <template>
   <div class="ui secondary pointing green inverted massive menu" v-if="isMenuNeeded">
     <!-- 基本的なコンテンツはここに記載する -->
-    <router-link active-class="active" class="item" exact to="/">Home</router-link>
-    <router-link active-class="active" class="item" to="/user">User</router-link>
-    <router-link active-class="active" class="item" to="/profile">Profile</router-link>
+    <router-link active-class="active" class="item" exact to="/">ホーム</router-link>
+    <router-link active-class="active" class="item" to="/article">投稿</router-link>
+    <router-link active-class="active" class="item" to="/profile">プロフィール</router-link>
     <div class="right menu">
-      <a @click="logout" class="item">Logout</a>
+      <a @click="logout" class="item">ログアウト</a>
     </div>
   </div>
 </template>
