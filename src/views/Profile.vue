@@ -38,10 +38,6 @@
       <h3>Edit Settings</h3>
       <form class="ui form" @submit.prevent="updateSettings">
         <div class="field">
-          <label>Username</label>
-          <input type="text" v-model="user.username" />
-        </div>
-        <div class="field">
           <label>Password</label>
           <input type="password" v-model="user.password" />
         </div>
@@ -153,6 +149,7 @@
   //   }
   // },
   async updateSettings() {
+    console.log("update")
     this.isCallingApi = true;
     try {
       const res = await fetch(baseUrl + '/user', {
