@@ -8,7 +8,6 @@
       </div>
     <div class="ui main container">
       <!-- 基本的なコンテンツはここに記載する -->
-      
 
       <!-- 発展課題のローディング表示用 -->
       <div class="ui active inverted page dimmer" v-if="isCallingApi">
