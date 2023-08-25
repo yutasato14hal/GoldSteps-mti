@@ -1,7 +1,14 @@
 <template>
-  <div>
+  <div><div class="ui secondary pointing green inverted massive menu">
+        <!-- 基本的なコンテンツはここに記載する -->
+        <div class="ui" id="logo">
+          GoldSteps
+        </div>
+
+      </div>
     <div class="ui main container">
       <!-- 基本的なコンテンツはここに記載する -->
+      
 
       <!-- 発展課題のローディング表示用 -->
       <div class="ui active inverted page dimmer" v-if="isCallingApi">
@@ -17,25 +24,25 @@
         </p>
 
         <!-- submitイベントを拾って、preventにて規定のアクションを中止し、submitメソッドを呼び出す。-->
-        <form class="ui large form" @submit.prevent="submit" >
+        <form class="ui large form" @submit.prevent="submit">
           <div class="field">
             <div class="ui left icon input">
               <i class="user icon"></i>
-              <input v-model="user.userId" type="text" placeholder="ユーザー名"/>
+              <input v-model="user.userId" type="text" placeholder="ユーザー名" />
             </div>
           </div>
 
           <div class="field">
             <div class="ui left icon input">
               <i class="lock icon"></i>
-              <input v-model="user.password" type="password" placeholder="パスワード"/>
+              <input v-model="user.password" type="password" placeholder="パスワード" />
             </div>
           </div>
 
           <div class="field" v-if="!isLogin">
             <div class="ui left icon input">
               <i class="calendar icon"></i>
-              <input v-model.number="user.age" type="number" min="0" placeholder="年齢"/>
+              <input v-model.number="user.age" type="number" min="0" placeholder="年齢" />
             </div>
           </div>
 
@@ -66,10 +73,10 @@
       return {
         isLogin: true,
         user: {
-        userId: null,
-        password: null,
-        age: null
-      },
+          userId: null,
+          password: null,
+          age: null
+        },
         errorMsg: '', // 発展課題のエラーメッセージ用
         isCallingApi: false // 発展課題のローディング表示用
       };
@@ -80,11 +87,11 @@
 
       // 発展課題のボタン活性/非活性用
       isButtonDisabled() {
-      const { userId, password, age } = this.user;
-      return this.isLogin
-          ? !userId || !password
-          : !userId || !password || !age;
-    },
+        const { userId, password, age } = this.user;
+        return this.isLogin ?
+          !userId || !password :
+          !userId || !password || !age;
+      },
 
       submitBtnText() {
         return this.isLogin ? 'ログイン' : '新規登録'
@@ -116,13 +123,11 @@
 
         const path = this.isLogin ? '/user/login' : '/user/signup';
         const { userId, password, age } = this.user;
-        const reqBody = this.isLogin
-        ? { userId, password }
-        : { userId, password, age };
-        console.log(userId,password);
+        const reqBody = this.isLogin ? { userId, password } : { userId, password, age };
+        console.log(userId, password);
         try {
-           /* global fetch */
-          const res = await fetch(baseUrl + path,{
+          /* global fetch */
+          const res = await fetch(baseUrl + path, {
             method: 'POST',
             body: JSON.stringify(reqBody)
           });
@@ -162,4 +167,14 @@
 
 <style scoped>
   /* このコンポーネントだけに適用するCSSはここに記述する */
+  #logo{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    color:white;
+    font-weight:bold;
+    font-size:40px;
+    margin:0 40px 0 20px;
+  }
 </style>
