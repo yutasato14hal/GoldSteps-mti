@@ -21,131 +21,74 @@
         {{ successMsg }}
       </p>
 
-      <!-- 投稿ボックス -->
+      <!-- 入力ボックス -->
       <div class="ui segment">
-        <form class="ui form" @submit.prevent="postArticle">
-          <div class="field">
-            <textarea
-              v-model="post.text"
-              name="article-content"
-              placeholder="あなたの投稿を発信しましょう！"
-            />
-          </div>
-
+        <form>
           <div class="inline field">
-            <label for="article-category">カテゴリー</label>
+            <!-- for="article-category"をtimeに -->
+            <h1>運動タスク</h1>
+            <ul>
+              <li>散歩をしましょう！</li>
+              <li>30分を目安に運動をしましょう！</li>
+              <li>心拍数は80を目指しましょう！</li>
+            </ul>
+            <hr>
+            <label for="vital">運動後の心拍数（回／分）</label>
             <input
-              v-model="post.category"
-              type="text"
-              id="article-category"
-              name="article-category"
+              v-model.number="vital"
+              type="number"
             />
+            <p>
+              {{result}}
+            </p>
           </div>
           <div class="right-align">
             <button
+              @click='checkResult'
               class="ui green button"
-              v-bind:abled="isPostButtonDisabled"
-              type="submit"
+              v-bind:able="checkResult"
+              type="button"
             >
-              投稿
+              送信
             </button>
           </div>
         </form>
       </div>
-
-      <!-- 検索ボックス -->
-      <div class="ui segment">
-        <form class="ui form" @submit.prevent="getSearchedArticles">
-          <div class="field">
-            <label for="userId">ユーザーID</label>
-            <input
-              v-model="search.userId"
-              type="text"
-              id="userId"
-              name="userId"
-              placeholder="ユーザーID"
-            />
-          </div>
-
-          <div class="field">
-            <label for="category">カテゴリー名</label>
-            <input
-              v-model="search.category"
-              type="text"
-              id="category"
-              name="category"
-              placeholder="カテゴリ"
-            />
-          </div>
-
-          <div class="field">
-            <label>投稿日時</label>
-            <div class="inline fields">
-              <div class="field">
-                <input
-                  v-model="search.start"
-                  type="datetime-local"
-                  id="timestampstart"
-                  name="timestampstart"
-                />
-                <label for="timestampstart">から</label>
-              </div>
-
-              <div class="field">
-                <input
-                  v-model="search.end"
-                  type="datetime-local"
-                  id="timestampend"
-                  name="timestampend"
-                />
-                <label for="timestampend">まで</label>
-              </div>
-            </div>
-          </div>
-          <div class="right-align">
-            <button
-              class="ui green button"
-              type="submit"
-              v-bind:abled="isSearchButtonDisabled"
-            >
-              検索
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- 投稿一覧 -->
-      <h3 class="ui dividing header">投稿一覧</h3>
+      
+      <!-- 投稿一覧-->
+      <h3 class="ui dividing header">自分の運動記録</h3>
       <div class="ui segment">
         <ul class="ui comments divided article-list">
-          <template v-for="(article, index) in articles" :key="index">
+          <template v-for="(team2_user, index) in team2_users" :key="index">
             <li class="comment">
               <div class="content">
-                <span class="author">{{ article.userId }}</span>
-                <div class="metadata">
+                <span class="author">{{ team2_user.userId }}</span>
+                <!-- timestampの項目がteam2_userにないため日時表示できない？　<div class="metadata">
                   <span class="date">{{
-                    convertToLocaleString(article.timestamp)
+                    convertToLocaleString(team2_user.timestamp)
                   }}</span>
-                </div>
+                </div> -->
                 <button
-                  v-if="isMyArticle(article.userId)"
+                  v-if="isMyArticle(team2_user.userId)"
                   class="ui negative mini button right floated"
-                  @click="deleteArticle(article)"
+                  @click="deleteArticle(team2_user)"
                 >
                   削除
                 </button>
-                <p class="text">
-                  {{ article.text }}
+                <p class="exp">
+                  EXP:{{ team2_user.exp }}
                 </p>
-                <span v-if="article.category" class="ui green label">{{
-                  article.category
-                }}</span>
+                <p class="age">
+                  AGE:{{ team2_user.age }}
+                </p>
+                
                 <div class="ui divider"></div>
               </div>
             </li>
           </template>
         </ul>
-      </div>
+      </div> 
+      
     </div>
   </div>
 </template>
@@ -156,7 +99,7 @@
 // import something from '@/components/something.vue';
 import { baseUrl } from "@/assets/config.js";
 
-const headers = { Authorization: "mtiToken" };
+const headers = { Authorization: "mtiToken", "Access-Control-Allow-Origin": "*" };
 
 export default {
   name: "Home",
@@ -169,12 +112,12 @@ export default {
     // Vue.jsで使う変数はここに記述する
     return {
       post: {
-        text: null,
-        category: null,
+        age: null,
+        exp: null,
       },
       search: {
         userId: null,
-        category: null,
+        age: null,
         start: null,
         end: null,
       },
@@ -182,13 +125,20 @@ export default {
       articles: [],
       iam: null,
       userId: null,
-      category:null,
-      start: 0,
-      end: 100,
+      age:null,
+      exp:0,
+      vital:null,
+      timestamp:null,
       successMsg: "",
       errorMsg: "",
       isCallingApi: false,
       
+      user:{
+        userId:"isogami"
+      },
+      team2_users:[],
+      result:""
+        
     };
   },
 
@@ -202,33 +152,111 @@ export default {
       return !this.search.userId;
     },
     
-    filteredArticles() {
-      return this.articles.filter(e =>
-        e.userId?.match(this.userId)
-        && e.time >= this.start
-        && e.time <= this.end
-      );
-    }
   },
 
   created: async function () {
     // Vue.jsの読み込みが完了したときに実行する処理はここに記述する
     // apiからarticleを取得する
+    
+    
+    // if (
 
-    if (
-      window.localStorage.getItem("userId") &&
-      window.localStorage.getItem("token")
-    ) {
-      this.iam = window.localStorage.getItem("userId");
-      await this.getArticles();
-    } else {
-      window.localStorage.clear();
-      this.$router.push({ name: "Login" });
-    }
+    //   window.localStorage.getItem("token")
+    // ) {
+    //   this.iam = window.localStorage.getItem("userId");
+    //await this.getArticles();
+    // } else {
+    //   window.localStorage.clear();
+    //   this.$router.push({ name: "Login" });
+    // }
+    await this.getUser();
   },
 
   methods: {
     // Vue.jsで使う関数はここで記述する
+    //入力された心拍数を基準値と比べ、完了の可否を決定
+    async checkResult() {
+      
+      let weight;
+      if(this.volume==="ume"){
+        weight=0.5;
+      }else if(this.volume==="take"){
+        weight=0.6;
+      }else{
+        weight=0.7;
+      }
+      
+      if((220-this.team2_users[0].age)*weight <= this.vital <= (220-this.team2_users[0].age)*(weight+0.1)){
+          this.team2_users[0].exp+=100;
+          this.result = "合格です！経験値を100獲得しました！";
+      }else{
+          this.result = "残念！不合格です。つぎはがんばりましょう! ";
+      }
+      await this.changeExp(this.user.userId,this.team2_users[0].exp);
+    },
+    
+    async getUser(){
+      try {
+        this.user.userId=window.localStorage.getItem("userId");
+        /* global fetch */
+        const res = await fetch(
+          //baseUrl + "/user?userId=isogami",
+          `${baseUrl}/user?userId=${this.user.userId}`,
+          {
+            method: "GET",
+            headers,
+          }
+        );
+        
+        const user = await res.json();
+        console.log(user);
+        this.team2_users=[user];
+
+        // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
+        if (!res.ok) {
+          const errorMessage =
+            jsonData.message ?? "エラーメッセージがありません";
+          throw new Error(errorMessage);
+        }
+      } catch (e) {
+        console.error(e);
+        this.errorMsg = e;
+      } finally {
+        this.isCallingApi = false;
+      }
+    },
+    //運動の種類をランダムに表示
+    async getExercise(){
+      try {
+        this.user.userId=window.localStorage.getItem("userId");
+        /* global fetch */
+        const res = await fetch(
+          //baseUrl + "/user?userId=isogami",
+          `${baseUrl}/user?userId=${this.user.userId}`,
+          {
+            method: "GET",
+            headers,
+          }
+        );
+        
+        const user = await res.json();
+        console.log(user);
+        this.team2_users=[user];
+
+        // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
+        if (!res.ok) {
+          const errorMessage =
+            jsonData.message ?? "エラーメッセージがありません";
+          throw new Error(errorMessage);
+        }
+      } catch (e) {
+        console.error(e);
+        this.errorMsg = e;
+      } finally {
+        this.isCallingApi = false;
+      }
+    },
+    
     clearMsg(target) {
       if (target === "error") {
         this.errorMsg = "";
@@ -246,14 +274,17 @@ export default {
 
       try {
         /* global fetch */
-        const res = await fetch(baseUrl + "/articles", {
+        const res = await fetch(baseUrl + "/users", {
           method: "GET",
           headers,
         });
 
-        const text = await res.text();
-        const jsonData = text ? JSON.parse(text) : {};
-
+        //const text = await res.text();
+        //const jsonData = age ? JSON.parse(age) : {};
+          const text = await res.text();
+          const jsonData = text ? JSON.parse(text) : {};
+          console.log(jsonData)
+          
         // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
         if (!res.ok) {
           const errorMessage =
@@ -262,9 +293,9 @@ export default {
         }
 
         // 記事がなかった場合undefinedとなり、記事追加時のunshiftでエラーとなるため、空のarrayを代入
-        this.articles = jsonData.articles ?? [];
+        this.users = jsonData.users ?? [];
       } catch (e) {
-        this.errorMsg = `記事一覧取得時にエラーが発生しました: ${e}`;
+        this.errorMsg = `運動一覧取得時にエラーが発生しました: ${e}`;
       } finally {
         this.isCallingApi = false;
       }
@@ -278,19 +309,19 @@ export default {
 
       const reqBody = {
         userId: this.iam,
-        text: this.post.text,
-        category: this.post.category,
+        age: this.post.age,
+        exp: this.post.exp,
       };
       try {
         /* global fetch */
-        const res = await fetch(baseUrl + "/article", {
+        const res = await fetch(baseUrl + "/user", {
           method: "POST",
           body: JSON.stringify(reqBody),
           headers,
         });
 
-        const text = await res.text();
-        const jsonData = text ? JSON.parse(text) : {};
+        const age = await res.age();
+        const jsonData = age ? JSON.parse(age) : {};
 
         // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
         if (!res.ok) {
@@ -299,10 +330,10 @@ export default {
           throw new Error(errorMessage);
         }
 
-        this.articles.unshift({ ...reqBody, timestamp: Date.now() });
-        this.successMsg = "記事が投稿されました！";
-        this.post.text = "";
-        this.post.category = "";
+        this.team2_user.unshift({ ...reqBody, timestamp: Date.now() });
+        this.successMsg = "運動情報が投稿されました！";
+        this.post.age = "";
+        this.post.exp = "";
       } catch (e) {
         console.error(e);
         this.errorMsg = e;
@@ -311,64 +342,26 @@ export default {
       }
     },
 
-    async getSearchedArticles() {
+    async deleteArticle(team2_user) {
       if (this.isCallingApi) {
         return;
       }
       this.isCallingApi = true;
 
-      const { userId, category, start, end } = this.search;
-      const startTS = start ? new Date(start).getTime() : "";
-      const endTS = end ? new Date(end).getTime() : "";
-      const qs = `userId=${userId}&category=${
-        category ?? ""
-      }&start=${startTS}&end=${endTS}`;
-
-      try {
-        /* global fetch */
-        const res = await fetch(baseUrl + `/articles?${qs}`, {
-          method: "GET",
-          headers,
-        });
-
-        const text = await res.text();
-        const jsonData = text ? JSON.parse(text) : {};
-
-        // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
-        if (!res.ok) {
-          const errorMessage =
-            jsonData.message ?? "エラーメッセージがありません";
-          throw new Error(errorMessage);
-        }
-
-        this.articles = jsonData.articles;
-      } catch (e) {
-        console.error(e);
-        this.errorMsg = e;
-      } finally {
-        this.isCallingApi = false;
-      }
-    },
-
-    async deleteArticle(article) {
-      if (this.isCallingApi) {
-        return;
-      }
-      this.isCallingApi = true;
-
-      const { userId, timestamp } = article;
+      const { userId, timestamp } = team2_user;
       try {
         /* global fetch */
         const res = await fetch(
-          `${baseUrl}/article?userId=${userId}&timestamp=${timestamp}`,
+          //baseUrl + "/user?userId=hoho",
+          `${baseUrl}/user?userId=${this.user.userId}`,//
           {
-            method: "DELETE",
+            method: "GET",
             headers,
           }
         );
 
-        const text = await res.text();
-        const jsonData = text ? JSON.parse(text) : {};
+        const age = await res.age();
+        const jsonData = age ? JSON.parse(age) : {};
 
         // fetchではネットワークエラー以外のエラーはthrowされないため、明示的にthrowする
         if (!res.ok) {
@@ -377,16 +370,41 @@ export default {
           throw new Error(errorMessage);
         }
 
-        const deleted = this.articles.findIndex(
+        const deleted = this.team2_user.findIndex(
           (a) => a.userId === userId && a.timestamp === timestamp
         );
-        this.articles.splice(deleted, 1);
-        this.successMsg = "記事が削除されました！";
+        this.team2_user.splice(deleted, 1);
+        this.successMsg = "運動情報が削除されました！";
       } catch (e) {
         console.error(e);
         this.errorMsg = e;
       } finally {
         this.isCallingApi = false;
+      }
+    },
+    
+    async changeExp(userId,exp){
+      console.log("changed")
+      try {
+        const body = JSON.stringify({
+          userId,
+          exp,
+        })
+        /* global fetch */
+        const res = await fetch(
+          //baseUrl + "/user?userId=isogami",
+          `${baseUrl}/home/getExp`,
+          {
+            method: "PUT",
+            headers,
+            body,
+          }
+        );
+        console.log(res)
+      } catch (e) {
+        console.error(e);
+        this.errorMsg = e;
+      } finally {
       }
     },
 
@@ -407,5 +425,30 @@ export default {
 }
 .right-align {
   text-align: right;
+}
+ul {
+  list-style-type: none;
+}
+li {
+  font-size:20px;
+  position: relative;
+  line-height: 1.8;
+}
+li::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: .5em;
+  left: -1.5em;
+  width: 10px;
+  height: 5px;
+  border-left: 3px solid #9c9c9c;
+  border-bottom: 3px solid #9c9c9c;
+  transform: rotate(-45deg);
+}
+hr {
+  border-top: 1px dashed #000; /* 破線 */
+  margin:30px;
+  
 }
 </style>
