@@ -4,7 +4,7 @@
         <div class="ui" id="logo">
           GoldSteps
         </div>
-
+　
       </div>
     <div class="ui main container">
       <!-- 基本的なコンテンツはここに記載する -->
