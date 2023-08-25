@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
 
   const body = event.body ? JSON.parse(event.body) : null;
 
-  if (!body || !body.password || !body.volume || !body.name) {
+  if (!body || !body.userId) {
     response.statusCode = 400;
     response.body = JSON.stringify({
       message:
@@ -39,8 +39,7 @@ exports.handler = async (event, context) => {
   // { varName }のような形式を分割代入と呼び、右側のオブジェクトの中からvarNameプロパティを変数varNameとして切り出すことができる
   // (https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)
 
-  const userId = event.queryStringParameters.userId;
-  const { name, password, volume } = body;
+  const { userId, password, volume } = body;
   const param = {
     // ↓プロパティ名と変数名が同一の場合は、値の指定を省略できる。
       TableName, // TableName: TableNameと同じ意味
@@ -48,16 +47,14 @@ exports.handler = async (event, context) => {
         userId,
       }),
       ExpressionAttributeNames: {
-      "#name": "name",
       "#volume": "volume",
       "#password": "password"
       },
       ExpressionAttributeValues: {
-        ":name": name,
         ":password": password,
         ":volume": volume,
       },
-      UpdateExpression: "SET #name = :name, #password = :password, #volume = :volume",
+      UpdateExpression: "SET #password = :password, #volume = :volume",
     };
 
   param.ExpressionAttributeValues = marshall(param.ExpressionAttributeValues);
@@ -65,7 +62,7 @@ exports.handler = async (event, context) => {
 
   try {
     await client.send(command);
-    response.body = JSON.stringify({ name,  volume });
+    response.body = JSON.stringify({ volume });
 
   } catch (e) {
     response.statusCode = 500;
